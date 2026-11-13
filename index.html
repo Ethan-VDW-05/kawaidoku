@@ -228,7 +228,8 @@ body.night #bg .twk{opacity:1}
 .env{font-size:64px;animation:revealIn .5s cubic-bezier(.2,1.6,.4,1)}
 .maillist{display:grid;gap:8px;margin:10px 0 14px}
 .mailrow{display:flex;align-items:center;gap:10px;border-radius:16px;padding:12px 14px;font-size:15px;text-align:left}
-.mailrow span{flex:1}.mailrow small{font-size:11.5px;opacity:.7}.mailrow.locked{opacity:.55;cursor:default}
+.mailrow span{flex:1}.mailrow span small{opacity:.65}
+.mdel{font-style:normal;font-size:17px;padding:4px 2px 4px 10px;cursor:pointer;opacity:.75}.mailrow small{font-size:11.5px;opacity:.7}.mailrow.locked{opacity:.55;cursor:default}
 .pindots{display:flex;justify-content:center;gap:14px;margin:12px 0 16px}
 .pindots i{width:16px;height:16px;border-radius:50%;background:var(--track);transition:.2s}.pindots i.on{background:var(--pink);transform:scale(1.2)}
 .pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -1546,7 +1547,7 @@ function switchPlayer(){try{sessionStorage.removeItem('kd-profile')}catch(e){}sf
 /* =========================================================
    Messages d'Ethan (synchronisés via GitHub)
    ========================================================= */
-const MSG_EMPTY=()=>({victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[]});
+const MSG_EMPTY=()=>({victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[]});
 let MSG=Object.assign(MSG_EMPTY(),GLS.get('msgcache',{}));
 const isoDay=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function repoInfo(){const c=GLS.get('repo',null);if(c&&c.owner&&c.repo)return c;const h=location.hostname;
@@ -1568,7 +1569,8 @@ async function saveMSG(){
   GLS.set('msgcache',MSG);
   const r=repoInfo(),token=GLS.get('token','');
   if(!r||!token)return'local';
-  let sha=null;try{sha=(await fetchRemote(true)).sha}catch(e){}
+  let sha=null;try{const rm=await fetchRemote(true);sha=rm.sha;
+    const ids=new Set((MSG.mots||[]).map(m=>m.id));MSG.mots=[...(MSG.mots||[]),...((rm.data.mots||[]).filter(m=>!ids.has(m.id)))];GLS.set('msgcache',MSG)}catch(e){}
   const res=await fetch(`https://api.github.com/repos/${r.owner}/${r.repo}/contents/messages.json`,{method:'PUT',
     headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+token,'Content-Type':'application/json'},
     body:JSON.stringify({message:'Kawaidoku : messages mis à jour 💌',content:b64e(JSON.stringify(MSG,null,2)),...(sha?{sha}:{})})});
@@ -1578,12 +1580,14 @@ const forMe=x=>x.pour===PROFILE||x.pour==='tous';
 function pickVictory(){const L=(MSG.victoire[PROFILE]||[]).filter(Boolean);return L.length?mpick(L):S.msg}
 
 /* ---------- Boîte aux lettres ---------- */
+const hiddenL=()=>LS.get('hiddenMsg',[]);
 const seen=()=>LS.get('seenMsg',[]),markSeen=id=>{const s_=seen();if(!s_.includes(id)){s_.push(id);LS.set('seenMsg',s_)}};
 function pendingItems(){
   const out=[],sn=seen(),today=isoDay(),week=isoDay(new Date(Date.now()-7*864e5));
   (MSG.cadeaux||[]).filter(g=>forMe(g)&&!sn.includes('g'+g.id)).forEach(g=>out.push({t:'gift',x:g}));
   (MSG.programmes||[]).filter(p=>forMe(p)&&p.date<=today&&p.date>=week&&!sn.includes('p'+p.id)).forEach(p=>out.push({t:'prog',x:p}));
-  const m=MSG.motDuJour[PROFILE];if(m&&m.texte&&!sn.includes('m'+m.id))out.push({t:'mot',x:m});
+  const m=MSG.motDuJour[PROFILE];if(m&&m.texte&&!sn.includes('m'+m.id)&&!hiddenL().includes('m'+m.id))out.push({t:'mot',x:m});
+  (MSG.mots||[]).filter(w=>w.pour===PROFILE&&!sn.includes('w'+w.id)).forEach(w=>out.push({t:'mot2',x:w}));
   (MSG.lettres||[]).filter(l=>forMe(l)&&unlocked()>l.niveau&&!sn.includes('l'+l.id)).forEach(l=>out.push({t:'letter',x:l}));
   return out;
 }
@@ -1609,23 +1613,59 @@ function showItem(p,reread){
       renderBerries(true);$('mOk').onclick=()=>{sfx.ui();next()}};
     return;
   }
-  const title=p.t==='letter'?`Lettre du niveau ${p.x.niveau}`:p.t==='prog'?'Message spécial':'Petit mot';
-  if(!reread)markSeen((p.t==='letter'?'l':p.t==='prog'?'p':'m')+p.x.id);
+  const title=p.t==='letter'?`Lettre du niveau ${p.x.niveau}`:p.t==='prog'?'Message spécial':p.t==='mot2'?`Petit mot · ${fmtDate(p.x.date)}`:'Petit mot';
+  if(!reread)markSeen((p.t==='letter'?'l':p.t==='prog'?'p':p.t==='mot2'?'w':'m')+p.x.id);
   openModal(`<div class="env" id="env">✉️</div>${paper(title,p.x.texte)}<div class="mbtns"><button class="candy" id="mOk">${reread?'Fermer':'💖'}</button></div>`,!reread);
   modal.classList.add('nopet');sfx.hint();if(!reread)setTimeout(()=>{const e=$('env');if(e){const r=e.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,{n:20,kinds:['heart'],speed:6,size:10})}},300);
   $('mOk').onclick=()=>{sfx.ui();next()};
 }
+const fmtDate=d=>{try{return new Date(d).toLocaleDateString('fr-BE',{day:'numeric',month:'short'})}catch(e){return''}};
+function hideMsg(k){const h=hiddenL();if(!h.includes(k)){h.push(k);LS.set('hiddenMsg',h)}}
 function showInbox(){
-  const L=(MSG.lettres||[]).filter(forMe).sort((a,b)=>a.niveau-b.niveau),m=MSG.motDuJour[PROFILE],lv=unlocked();
+  const L=(MSG.lettres||[]).filter(forMe).sort((a,b)=>a.niveau-b.niveau),m=MSG.motDuJour[PROFILE],lv=unlocked(),hd=hiddenL();
+  const W=(MSG.mots||[]).filter(w=>w.pour===PROFILE&&!hd.includes('w'+w.id)).sort((a,b)=>a.date<b.date?1:-1);
+  const sentW=(MSG.mots||[]).filter(w=>w.de===PROFILE&&!hd.includes('s'+w.id)).sort((a,b)=>a.date<b.date?1:-1).slice(0,10);
+  const del=k=>`<i class="mdel" data-del="${k}">🗑️</i>`;
   const rows=[];
-  if(m&&m.texte)rows.push(`<button class="soft mailrow" data-k="mot">💌 <span>Petit mot</span><small>Lire</small></button>`);
-  L.forEach(l=>rows.push(lv>l.niveau?`<button class="soft mailrow" data-k="l${l.id}">✉️ <span>Lettre du niveau ${l.niveau}</span><small>Lire</small></button>`
+  if(m&&m.texte&&!hd.includes('m'+m.id))rows.push(`<div class="soft mailrow" data-k="mot">💌 <span>Petit mot de ${esc(fromName())}</span>${del('m'+m.id)}</div>`);
+  W.forEach(w=>rows.push(`<div class="soft mailrow" data-k="w${w.id}">💌 <span>Mot de ${esc(w.deNom||fromName())}<small> · ${fmtDate(w.date)}</small></span>${del('w'+w.id)}</div>`));
+  L.filter(l=>!hd.includes('l'+l.id)).forEach(l=>rows.push(lv>l.niveau?`<div class="soft mailrow" data-k="l${l.id}">✉️ <span>Lettre du niveau ${l.niveau}</span>${del('l'+l.id)}</div>`
     :`<div class="soft mailrow locked">🔒 <span>Lettre du niveau ${l.niveau}</span><small>Atteins le niveau ${l.niveau+1}</small></div>`));
-  openModal(`<h2>${letters('Boîte aux lettres')}</h2><div class="maillist">${rows.join('')||'<p class="small">Pas encore de lettre… 💭</p>'}</div>
-    <div class="mbtns"><button class="candy" id="mOk">Fermer</button></div>`);
+  const sent=sentW.map(w=>`<div class="soft mailrow" data-k="s${w.id}">📤 <span>${esc(w.texte.slice(0,28))}${w.texte.length>28?'…':''}<small> · ${fmtDate(w.date)}</small></span>${del('s'+w.id)}</div>`);
+  openModal(`<h2>${letters('Boîte aux lettres')}</h2>
+    <button class="candy abtn" id="mWrite" style="margin-top:10px">✍️ Écrire à ${esc(fromName())}</button>
+    <div class="maillist">${rows.join('')||'<p class="small">Pas encore de lettre… 💭</p>'}</div>
+    ${sent.length?`<div class="sect" style="margin:4px 0 8px">Mots envoyés</div><div class="maillist">${sent.join('')}</div>`:''}
+    <div class="mbtns"><button class="soft" id="mOk">Fermer</button></div>`);
   modal.classList.add('nopet');$('mOk').onclick=()=>{sfx.ui();closeModal()};
+  $('mWrite').onclick=()=>{sfx.ui();showWrite()};
+  modal.querySelectorAll('[data-del]').forEach(d=>d.onclick=e=>{e.stopPropagation();hideMsg(d.dataset.del);sfx.erase();const row=d.closest('.mailrow');
+    row.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.8)'}],{duration:250}).onfinish=()=>{showInbox();renderInboxBtn()}});
   modal.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;
-    if(k==='mot')showItem({t:'mot',x:m},true);else showItem({t:'letter',x:L.find(l=>'l'+l.id===k)},true)});
+    if(k==='mot')showItem({t:'mot',x:m},true);
+    else if(k[0]==='w')showItem({t:'mot2',x:W.find(w=>'w'+w.id===k)},true);
+    else if(k[0]==='s'){const w=sentW.find(w=>'s'+w.id===k);openModal(`<h2>${letters('Mot envoyé')}</h2><div class="paper"><div class="ptitle">Pour ${esc(nameOf(w.pour))} · ${fmtDate(w.date)}</div><div class="ptext">${esc(w.texte).replace(/\n/g,'<br>')}</div><div class="psign">— ${esc(S.name)} 💗</div></div><div class="mbtns"><button class="candy" id="mOk">Retour</button></div>`);modal.classList.add('nopet');$('mOk').onclick=()=>{sfx.ui();showInbox()}}
+    else showItem({t:'letter',x:L.find(l=>'l'+l.id===k)},true)});
+}
+function showWrite(){
+  const to=PROFILES.find(p=>p.id!==PROFILE);
+  openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Pour '+to.name)}</h2>
+    <label class="field"><textarea id="wTxt" rows="5" maxlength="400" placeholder="Écris ton petit mot… 💕" style="font-family:'Caveat',cursive;font-size:24px;line-height:1.15"></textarea></label>
+    <p class="small">${esc(to.name)} recevra une notification 🔔</p>
+    <div class="mbtns"><button class="soft" id="wCancel">Annuler</button><button class="candy" id="wSend">Envoyer 💌</button></div>`,true);
+  setTimeout(()=>{const t=$('wTxt');t&&t.focus()},400);
+  $('wCancel').onclick=()=>{sfx.ui();showInbox()};
+  $('wSend').onclick=async()=>{
+    const t=$('wTxt').value.trim();if(!t){$('wTxt').focus();return}
+    const b=$('wSend');b.disabled=true;b.textContent='Envoi…';
+    const w={id:uid(),de:PROFILE,deNom:S.name,pour:to.id,texte:t,date:new Date().toISOString()};
+    try{
+      if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);data.mots=[...(data.mots||[]),w];await ghWrite('messages.json',data,sha,'💌 mot de '+S.name);MSG=data}
+      else{MSG.mots=[...(MSG.mots||[]),w]}
+      GLS.set('msgcache',MSG);sfx.win();const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top,{n:30,kinds:['heart'],speed:8,size:12});
+      closeModal();toast(`Envoyé à ${to.name} 💌`);
+    }catch(e){sfx.no();b.disabled=false;b.textContent='Envoyer 💌';toast('Oups : '+e.message)}
+  };
 }
 
 /* =========================================================
