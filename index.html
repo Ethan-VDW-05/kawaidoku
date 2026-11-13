@@ -1649,7 +1649,7 @@ function showInbox(){
     :`<div class="soft mailrow locked">🔒 <span>Lettre du niveau ${l.niveau}</span><small>Atteins le niveau ${l.niveau+1}</small></div>`));
   const sent=sentW.map(w=>`<div class="soft mailrow" data-k="s${w.id}">📤 <span>${esc(w.texte.slice(0,28))}${w.texte.length>28?'…':''}<small> · ${fmtDate(w.date)}</small></span>${del('s'+w.id)}</div>`);
   openModal(`<h2>${letters('Boîte aux lettres')}</h2>
-    <div class="mbtns" style="margin-top:10px"><button class="candy" id="mWrite">✍️ Écrire à ${esc(fromName())}</button>${PROFILE!==ADMIN_PROFILE?'<button class="candy" id="mRev" style="--a:#c9a8ff;--b:#8d5fdf;--d:#6a3fb8;flex:.6">😈</button>':''}</div>
+    <div class="mbtns" style="margin-top:10px"><button class="candy" id="mWrite">✍️ Écrire à ${esc(fromName())}</button>${PROFILE!==ADMIN_PROFILE?'<button class="candy" id="mRev" style="--a:#c9a8ff;--b:#8d5fdf;--d:#6a3fb8;flex:.6">😈 Piéger</button>':''}</div>
     <div class="maillist">${rows.join('')||'<p class="small">Pas encore de lettre… 💭</p>'}</div>
     ${sent.length?`<div class="sect" style="margin:4px 0 8px">Mots envoyés</div><div class="maillist">${sent.join('')}</div>`:''}
     <div class="mbtns"><button class="soft" id="mOk">Fermer</button></div>`);
