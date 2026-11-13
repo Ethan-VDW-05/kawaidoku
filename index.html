@@ -1649,12 +1649,12 @@ function showInbox(){
     :`<div class="soft mailrow locked">🔒 <span>Lettre du niveau ${l.niveau}</span><small>Atteins le niveau ${l.niveau+1}</small></div>`));
   const sent=sentW.map(w=>`<div class="soft mailrow" data-k="s${w.id}">📤 <span>${esc(w.texte.slice(0,28))}${w.texte.length>28?'…':''}<small> · ${fmtDate(w.date)}</small></span>${del('s'+w.id)}</div>`);
   openModal(`<h2>${letters('Boîte aux lettres')}</h2>
-    <button class="candy abtn" id="mWrite" style="margin-top:10px">✍️ Écrire à ${esc(fromName())}</button>
+    <div class="mbtns" style="margin-top:10px"><button class="candy" id="mWrite">✍️ Écrire à ${esc(fromName())}</button>${PROFILE!==ADMIN_PROFILE?'<button class="candy" id="mRev" style="--a:#c9a8ff;--b:#8d5fdf;--d:#6a3fb8;flex:.6">😈</button>':''}</div>
     <div class="maillist">${rows.join('')||'<p class="small">Pas encore de lettre… 💭</p>'}</div>
     ${sent.length?`<div class="sect" style="margin:4px 0 8px">Mots envoyés</div><div class="maillist">${sent.join('')}</div>`:''}
     <div class="mbtns"><button class="soft" id="mOk">Fermer</button></div>`);
   modal.classList.add('nopet');$('mOk').onclick=()=>{sfx.ui();closeModal()};
-  $('mWrite').onclick=()=>{sfx.ui();showWrite()};
+  $('mWrite').onclick=()=>{sfx.ui();showWrite()};if($('mRev'))$('mRev').onclick=()=>{sfx.ui();showRevenge()};
   modal.querySelectorAll('[data-del]').forEach(d=>d.onclick=e=>{e.stopPropagation();hideMsg(d.dataset.del);sfx.erase();const row=d.closest('.mailrow');
     row.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.8)'}],{duration:250}).onfinish=()=>{showInbox();renderInboxBtn()}});
   modal.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;
@@ -1687,9 +1687,9 @@ function showWrite(){
 /* =========================================================
    Mode admin (7 taps sur le logo + code)
    ========================================================= */
-const ADMIN_PIN='2404';let logoTaps=0,logoT=null;
+const ADMIN_PIN='2404',ADMIN_PROFILE='ethan';let logoTaps=0,logoT=null;
 document.querySelector('#menu .ttl').addEventListener('click',()=>{logoTaps++;clearTimeout(logoT);logoT=setTimeout(()=>logoTaps=0,2500);
-  if(logoTaps>=7){logoTaps=0;showPin()}});
+  if(logoTaps>=7){logoTaps=0;if(PROFILE===ADMIN_PROFILE)showPin();else{sfx.pet(5);bumpPet($('menuPet'));toast('Hihi, rien à voir ici 🙈')}}});
 function showPin(){
   let code='';
   const draw=()=>$('pinDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<code.length?'on':''}"></i>`).join('');
@@ -1848,7 +1848,28 @@ const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includ
 let trollT=null;
 function checkTroll(){const t=pendingTroll();if(!t||trollT)return;
   trollT=setTimeout(()=>{trollT=null;if(ov.classList.contains('show')){checkTroll();return}markSeen('t'+t.id);runTroll(t.type,t.de)},6000+mr()*6000)}
-function trollReveal(by){setTimeout(()=>{toast(`😂 Troll signé ${by||fromName()} ❤️`);sfx.win();confetti()},300)}
+function trollReveal(by){setTimeout(()=>{sfx.win();confetti();
+  if(window.__preview){window.__preview=false;toast('Voilà ce qu\'il va subir 😈');setTimeout(showRevenge,1200);return}
+  if(PROFILE===ADMIN_PROFILE){toast(`😂 Troll signé ${by||fromName()} ❤️`);return}
+  openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters(PROFILE==='noellya'?'Trollée ! 😂':'Trollé ! 😂')}</h2><p style="font-weight:600;color:var(--plum2);margin:4px 0 14px">C'était un coup de ${esc(by||fromName())}… Tu vas le laisser s'en tirer comme ça ?</p>
+    <div class="mbtns"><button class="soft" id="rvNo">Je pardonne 😇</button><button class="candy" id="rvYes">Vengeance 😈</button></div>`,true);
+  $('rvNo').onclick=()=>{sfx.ui();closeModal()};$('rvYes').onclick=()=>{sfx.ui();showRevenge()}},300)}
+function showRevenge(){
+  const to=PROFILES.find(p=>p.id!==PROFILE);
+  openModal(`<h2>${letters('Vengeance 😈')}</h2><p class="small" style="margin:4px 0 10px">Choisis ton piège pour ${esc(to.name)}. Il se déclenchera à sa prochaine ouverture du jeu.</p>
+    <div class="trolls">${TROLLS.map(t=>`<div class="soft troll"><div class="ti">${t.ico}</div><div class="tt"><b>${t.name}</b><small>${t.desc}</small></div>
+      <div class="tb"><button class="soft" data-try="${t.id}">Voir</button><button class="candy" data-send="${t.id}">Piéger</button></div></div>`).join('')}</div>
+    <div class="mbtns"><button class="soft" id="mOk">Fermer</button></div>`);
+  modal.classList.add('nopet');$('mOk').onclick=()=>{sfx.ui();closeModal()};
+  modal.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{closeModal();ensureAudio();const t=b.dataset.try;
+    setTimeout(()=>{window.__preview=true;runTroll(t,S.name)},350)});
+  modal.querySelectorAll('[data-send]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='…';
+    const tr={id:uid(),pour:to.id,type:b.dataset.send,de:S.name,date:new Date().toISOString()};
+    try{if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);data.trolls=[...(data.trolls||[]),tr];await ghWrite('messages.json',data,sha,'😈 vengeance de '+S.name);MSG=data;GLS.set('msgcache',MSG)}
+      else throw new Error('jeu pas relié');
+      sfx.buy();closeModal();toast(`😈 Piège posé ! ${to.name} ne se doute de rien…`);const r=b.getBoundingClientRect();burst(innerWidth/2,innerHeight/2,{n:24,kinds:['emoji'],chars:['😈','💥','🐸'],speed:8,size:12})}
+    catch(e){sfx.no();b.disabled=false;b.textContent='Piéger';toast('Oups : '+e.message)}});
+}
 function runTroll(type,by){
   if(type==='screamer'){
     const d=document.createElement('div');d.className='scream';d.innerHTML=`<div class="sface">${pet(S.pet,'normal').replace(/fill="#4a2a40"/g,'fill="#e0002a"')}</div><div class="stxt">BOUH !</div>`;
