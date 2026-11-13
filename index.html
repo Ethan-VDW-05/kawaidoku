@@ -635,6 +635,7 @@ const PETS=[
   {id:'panda',name:'Bambou',desc:'le petit panda',price:0},
   {id:'hamster',name:'Pépite',desc:'le hamster gourmand',price:60},
   {id:'sheep',name:'Nuage',desc:'le mouton tout doux',price:80},
+  {id:'bee',name:'Bzzz',desc:"l'abeille qui butine",price:80},
   {id:'puppy',name:'Biscuit',desc:'le chiot joueur',price:60},
   {id:'bear',name:'Câlin',desc:"l'ourson tout doux",price:60},
   {id:'pig',name:'Rosette',desc:'le petit cochon',price:70},
@@ -763,6 +764,13 @@ function pet(type=S.pet,mood='normal',eq=curAccs()){
       [[24,48],[29,36],[40,28],[52,26],[64,28],[73,36],[77,48]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="11" fill="#fff" stroke="${LINE}" stroke-width="2.6"/>`).join('');
     top=[[40,41,7],[50,37,8],[60,41,7]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${LINE}" stroke-width="2.2"/>`).join('');
     nose=`<ellipse cx="50" cy="68.5" rx="2.6" ry="1.8" fill="#e88aa8"/>`;my=72;
+  }else if(type==='bee'){
+    headFill='#ffd84d';
+    back=`<ellipse cx="20" cy="46" rx="15" ry="10" fill="#e6f6ff" stroke="${LINE}" stroke-width="2.4" opacity=".95" transform="rotate(-30 20 46)"/><ellipse cx="80" cy="46" rx="15" ry="10" fill="#e6f6ff" stroke="${LINE}" stroke-width="2.4" opacity=".95" transform="rotate(30 80 46)"/>
+      <path d="M22 41 l8 6 M78 41 l-8 6" stroke="#b7dcf2" stroke-width="2" stroke-linecap="round"/>`;
+    patches=`<path d="M19 53 Q50 42 81 53 L83 59 Q50 48 17 59Z" fill="${INK}" opacity=".85"/><path d="M21 75 Q50 85 79 75 L77 81 Q50 91 23 81Z" fill="${INK}" opacity=".85"/>`;
+    top=`<path d="M42 37 Q37 22 30 17" fill="none" stroke="${LINE}" stroke-width="2.8" stroke-linecap="round"/><path d="M58 37 Q63 22 70 17" fill="none" stroke="${LINE}" stroke-width="2.8" stroke-linecap="round"/><circle cx="29" cy="15" r="4.5" fill="${INK}"/><circle cx="71" cy="15" r="4.5" fill="${INK}"/>`;
+    my=71;
   }else if(type==='puppy'){
     headFill='#f6d7b0';
     patches=`<ellipse cx="63" cy="60" rx="10" ry="9" fill="#dcae7c"/><ellipse cx="50" cy="74" rx="12" ry="8" fill="#fff3e3"/>`;
@@ -1586,7 +1594,7 @@ function switchPlayer(){try{sessionStorage.removeItem('kd-profile')}catch(e){}sf
 /* =========================================================
    Messages d'Ethan (synchronisés via GitHub)
    ========================================================= */
-const MSG_EMPTY=()=>({victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[],trolls:[]});
+const MSG_EMPTY=()=>({config:{},victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[],trolls:[]});
 let MSG=Object.assign(MSG_EMPTY(),GLS.get('msgcache',{}));
 const isoDay=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function repoInfo(){const c=GLS.get('repo',null);if(c&&c.owner&&c.repo)return c;const h=location.hostname;
@@ -1867,7 +1875,8 @@ const TROLLS=[
   {id:'pluie',ico:'🐸',name:'Pluie de grenouilles',desc:"Une avalanche d'emojis envahit l'écran"},
   {id:'fuite',ico:'🏃',name:'Mascotte fugueuse',desc:"Sa mascotte s'enfuit quand elle essaie de la toucher"},
   {id:'reset',ico:'🗑️',name:'Fausse remise à zéro',desc:'« Progression supprimée… Niveau 1 »'}];
-let runTroll_;const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id));
+const vengeanceOn=()=>!(MSG.config&&MSG.config.vengeance===false);
+const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id)&&(PROFILE!==ADMIN_PROFILE||vengeanceOn()||!t.de||t.de===S.name));
 let trollT=null;
 function checkTroll(){const t=pendingTroll();if(!t||trollT)return;
   trollT=setTimeout(()=>{trollT=null;if(ov.classList.contains('show')){checkTroll();return}markSeen('t'+t.id);runTroll(t.type,t.de)},6000+mr()*6000)}
@@ -1878,6 +1887,9 @@ function trollReveal(by){setTimeout(()=>{sfx.win();confetti();
     <div class="mbtns"><button class="soft" id="rvNo">Je pardonne 😇</button><button class="candy" id="rvYes">Vengeance 😈</button></div>`,true);
   $('rvNo').onclick=()=>{sfx.ui();closeModal()};$('rvYes').onclick=()=>{sfx.ui();showRevenge()}},300)}
 function showRevenge(){
+  if(!vengeanceOn()){closeModal();sfx.no();openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters('Vengeance bloquée')}</h2>
+    <p style="font-weight:600;color:var(--plum2);margin:4px 0 14px">🔒 ${esc(fromName())} a activé son bouclier anti-vengeance… 😇<br>Il est intouchable pour l'instant.</p>
+    <div class="mbtns"><button class="candy" id="mOk">Grrr 😤</button></div>`);$('mOk').onclick=()=>{sfx.ui();closeModal()};return}
   const to=PROFILES.find(p=>p.id!==PROFILE);
   openModal(`<h2>${letters('Vengeance 😈')}</h2><p class="small" style="margin:4px 0 10px">Choisis ton piège pour ${esc(to.name)}. Il se déclenchera à sa prochaine ouverture du jeu.</p>
     <div class="trolls">${TROLLS.map(t=>`<div class="soft troll"><div class="ti">${t.ico}</div><div class="tt"><b>${t.name}</b><small>${t.desc}</small></div>
@@ -1888,7 +1900,7 @@ function showRevenge(){
     setTimeout(()=>{window.__preview=true;runTroll(t,S.name)},350)});
   modal.querySelectorAll('[data-send]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='…';
     const tr={id:uid(),pour:to.id,type:b.dataset.send,de:S.name,date:new Date().toISOString()};
-    try{if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);data.trolls=[...(data.trolls||[]),tr];await ghWrite('messages.json',data,sha,'😈 vengeance de '+S.name);MSG=data;GLS.set('msgcache',MSG)}
+    try{if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);if(data.config&&data.config.vengeance===false){MSG=data;showRevenge();return}data.trolls=[...(data.trolls||[]),tr];await ghWrite('messages.json',data,sha,'😈 vengeance de '+S.name);MSG=data;GLS.set('msgcache',MSG)}
       else throw new Error('jeu pas relié');
       sfx.buy();closeModal();toast(`😈 Piège posé ! ${to.name} ne se doute de rien…`);const r=b.getBoundingClientRect();burst(innerWidth/2,innerHeight/2,{n:24,kinds:['emoji'],chars:['😈','💥','🐸'],speed:8,size:12})}
     catch(e){sfx.no();b.disabled=false;b.textContent='Piéger';toast('Oups : '+e.message)}});
@@ -2016,12 +2028,15 @@ runTroll=function(type,by){
 
 function renderTrolls(B,head){
   const to=admTo==='ethan'&&PROFILE==='ethan'?'noellya':admTo;
-  B.innerHTML=head+`<label class="field">Victime 😈<select id="tTo">${profOpts(to)}</select></label>
+  B.innerHTML=head+`<div class="setrow" style="margin-bottom:8px"><div>🛡️ Bouclier anti-vengeance<small>${vengeanceOn()?'Elle peut se venger':'Ses trolls sont bloqués 😇'}</small></div><button class="sw${vengeanceOn()?'':' on'}" id="vShield"></button></div>
+    <label class="field">Victime 😈<select id="tTo">${profOpts(to)}</select></label>
     <p class="small">Le troll se déclenche quelques secondes après sa prochaine ouverture du jeu, une seule fois. Pas de notification, c'est une surprise.</p>
     <div class="trolls">${TROLLS.map(t=>`<div class="soft troll"><div class="ti">${t.ico}</div><div class="tt"><b>${t.name}</b><small>${t.desc}</small></div>
       <div class="tb"><button class="soft" data-try="${t.id}">Tester</button><button class="candy" data-send="${t.id}">Envoyer</button></div></div>`).join('')}</div>
     <div class="alist">${(MSG.trolls||[]).slice(-6).reverse().map(t=>`<div class="aitem"><b>${(TROLLS.find(x=>x.id===t.type)||{}).ico||''} ${esc(nameOf(t.pour))} · ${fmtDate(t.date)}</b><span>${(TROLLS.find(x=>x.id===t.type)||{}).name||t.type}</span><button data-del="${t.id}">🗑️</button></div>`).join('')}</div>`;
   $('tTo').onchange=e=>{admTo=e.target.value};
+  $('vShield').onclick=async e=>{MSG.config=Object.assign({},MSG.config,{vengeance:!vengeanceOn()});e.target.classList.toggle('on',!vengeanceOn());sfx.ui();
+    try{const r=await saveMSG();toast(vengeanceOn()?'⚔️ Vengeance réactivée':'🛡️ Bouclier activé ! Tu es intouchable 😎')}catch(x){toast('Erreur : '+x.message)}renderAdmin()};
   B.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{ensureAudio();runTroll(b.dataset.try,S.name)});
   B.querySelectorAll('[data-send]').forEach(b=>b.onclick=async()=>{
     MSG.trolls=[...(MSG.trolls||[]),{id:uid(),pour:$('tTo').value,type:b.dataset.send,de:S.name,date:new Date().toISOString()}];
