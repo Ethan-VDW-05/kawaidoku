@@ -285,6 +285,58 @@ html.disco{animation:disco .46s linear infinite}@keyframes disco{to{filter:hue-r
 .fly{pointer-events:auto;font-size:40px;width:60px;height:60px;inset:auto;left:0;top:0;display:flex;align-items:center;justify-content:center;line-height:1;transition:transform .25s linear;cursor:pointer;z-index:96}.fly b{line-height:1}.flycatch{pointer-events:auto;z-index:94}
 body.lite .twk,body.lite .cloud{display:none}body.lite .bw{animation:none}body.lite .hearts svg{animation:none}
 body.bgpause *{animation-play-state:paused!important}
+
+/* ---------- Plateaux (skins) ---------- */
+.mini{width:92px;height:92px;padding:5px;border-radius:18px}
+.mini .board{display:grid;grid-template-columns:repeat(3,1fr);width:100%;height:100%;background:var(--boardbg);border-radius:12px;padding:2px}
+.mini .cell{position:relative}.mini .tile{inset:1.5px}
+.mini .corner{display:none}.mini .tile .petsvg{width:92%;height:92%}
+/* Bonbon : rayures de sucre d'orge */
+.sk-bonbon{--boardbg:#ffe3ef}
+.frame.sk-bonbon{background:repeating-linear-gradient(45deg,#ff8fb8 0 12px,#fff 12px 24px);box-shadow:0 9px 0 #d94f86,0 22px 44px rgba(255,93,143,.3)}
+.sk-bonbon .tile{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.42) 0 5px,transparent 5px 11px),linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 55%);background-size:auto,100% 100%;border-radius:50%}
+/* Tropical : sable et vagues */
+.sk-tropical{--boardbg:linear-gradient(180deg,#9fe3f5,#5cc6e8)}
+.frame.sk-tropical{background:linear-gradient(160deg,#ffeeb8,#f3cf7f);box-shadow:0 9px 0 #d9a84a,0 22px 44px rgba(76,159,224,.3)}
+.sk-tropical .tile{background-image:radial-gradient(circle at 50% 120%,transparent 40%,rgba(255,255,255,.45) 41%,rgba(255,255,255,.45) 47%,transparent 48%),linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 60%);background-size:14px 10px,100% 100%;border-radius:30%}
+/* Coucher de soleil : dégradés chauds */
+.sk-sunset{--boardbg:linear-gradient(180deg,#4b2a5f,#2a1640)}
+.frame.sk-sunset{background:linear-gradient(170deg,#ffb36b,#ff6b8a 50%,#9b5de5);box-shadow:0 9px 0 #6a2c91,0 22px 44px rgba(155,93,229,.35)}
+.sk-sunset .tile{background-image:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0) 45%,rgba(60,0,60,.25));background-size:100% 100%;border-radius:18%}
+/* Arc-en-ciel */
+.sk-rainbow{--boardbg:#fff}
+.frame.sk-rainbow{background:conic-gradient(from 0deg,#ff8787,#ffa94d,#ffe066,#69db7c,#66d9e8,#74c0fc,#9775fa,#f783ac,#ff8787);box-shadow:0 9px 0 #9775fa,0 22px 44px rgba(151,117,250,.35)}
+.sk-rainbow .tile{background-image:radial-gradient(circle at 30% 25%,rgba(255,255,255,.75) 0 14%,transparent 15%),linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0) 60%);background-size:100% 100%;border-radius:50%}
+/* Biscuit : gâteaux glacés aux pépites */
+.sk-biscuit{--boardbg:#8a5634}
+.frame.sk-biscuit{background:radial-gradient(circle at 20% 30%,#6b3e26 0 4px,transparent 5px) 0 0/26px 26px,linear-gradient(160deg,#d9a066,#b77b45);box-shadow:0 9px 0 #6b3e26,0 22px 44px rgba(107,62,38,.4)}
+.sk-biscuit .tile{background-image:radial-gradient(circle at 30% 35%,#5b3220 0 2px,transparent 2.5px),radial-gradient(circle at 70% 65%,#5b3220 0 2px,transparent 2.5px),linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 50%);background-size:16px 16px,16px 16px,100% 100%;border-radius:40%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.5),inset 0 -4px 0 rgba(90,50,20,.25),0 2px 3px rgba(60,30,10,.35)}
+/* Jardin : herbe et fleurs */
+.sk-jardin{--boardbg:linear-gradient(180deg,#8fd16f,#5fae4a)}
+.frame.sk-jardin{background:repeating-linear-gradient(90deg,#6cc04a 0 6px,#5aae3c 6px 12px);box-shadow:0 9px 0 #3f8a2c,0 22px 44px rgba(63,138,44,.35)}
+.sk-jardin .tile{background-image:radial-gradient(circle,#fff 0 2px,transparent 2.5px),radial-gradient(circle,rgba(255,255,255,.55) 0 4px,transparent 4.5px),linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0) 60%);background-size:18px 18px,18px 18px,100% 100%;background-position:9px 9px,9px 9px,0 0;border-radius:45% 45% 35% 35%}
+/* Glace : carreaux givrés */
+.sk-glace{--boardbg:linear-gradient(160deg,#dff3ff,#b8dcff)}
+.frame.sk-glace{background:linear-gradient(160deg,#ffffff,#d6ecff);box-shadow:0 9px 0 #8cc2ef,0 22px 44px rgba(76,159,224,.3),inset 0 0 0 3px rgba(255,255,255,.9)}
+.sk-glace .tile{background-image:linear-gradient(135deg,rgba(255,255,255,.75) 0 18%,transparent 18% 50%,rgba(255,255,255,.35) 50% 58%,transparent 58%),linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.1));background-size:100% 100%;border-radius:22%;opacity:.92;box-shadow:inset 0 0 0 2px rgba(255,255,255,.85),0 2px 4px rgba(76,120,180,.25)}
+/* Galaxie : nuit étoilée et halo */
+.sk-galaxie{--boardbg:radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 1.5px) 0 0/23px 23px,radial-gradient(circle at 70% 80%,#cbb8ff 0 1px,transparent 1.5px) 0 0/31px 31px,linear-gradient(160deg,#1b1240,#0b0820)}
+.frame.sk-galaxie{background:linear-gradient(160deg,#3a2a7a,#170f3a);box-shadow:0 9px 0 #0b0820,0 22px 44px rgba(120,80,255,.45)}
+.sk-galaxie .tile{background-image:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55) 0 10%,transparent 11%),linear-gradient(180deg,rgba(255,255,255,.25),rgba(0,0,0,.15));background-size:100% 100%;border-radius:50%;box-shadow:0 0 9px 1px currentColor,inset 0 2px 0 rgba(255,255,255,.4)}
+/* Néon : contours lumineux */
+.sk-neon{--boardbg:#0d0b16}
+.frame.sk-neon{background:#16121f;box-shadow:0 9px 0 #000,0 0 0 2px #ff4dd8,0 0 26px #ff4dd8}
+.sk-neon .tile{background:#1a1626!important;border:2.5px solid currentColor;border-radius:22%;box-shadow:0 0 8px currentColor,inset 0 0 8px currentColor}
+.sk-neon .tile .x path{stroke:#fff}
+/* Bois : chalet cosy */
+.sk-bois{--boardbg:repeating-linear-gradient(90deg,#a0703f 0 14px,#946536 14px 16px,#a87a48 16px 30px)}
+.frame.sk-bois{background:repeating-linear-gradient(0deg,#8a5a2b 0 9px,#7a4e24 9px 11px,#93633a 11px 20px);box-shadow:0 9px 0 #5c3a18,0 22px 44px rgba(92,58,24,.4)}
+.sk-bois .tile{background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 50%,rgba(70,40,10,.15));background-size:100% 100%;border-radius:16%}
+.tbanner{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));z-index:97;display:flex;align-items:center;gap:8px;background:var(--solid);border-radius:20px;padding:8px 8px 8px 10px;
+  box-shadow:0 6px 0 rgba(91,53,80,.15),0 14px 30px rgba(40,20,40,.3);transform:translateY(-150%);transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.tbanner.in{transform:translateY(0)}.tbanner .tbp{width:42px;height:42px;flex-shrink:0}.tbanner .tbp .petsvg{width:100%;height:100%}
+.tbanner .tbt{flex:1;min-width:0;text-align:left}.tbanner .tbt b{display:block;font-size:13.5px;line-height:1.2}.tbanner .tbt small{font-size:12px;opacity:.7}
+.tbanner button{border-radius:13px;padding:8px 9px;font-size:12.5px;flex-shrink:0}
 .swatch{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:80px;height:80px;padding:4px;background:#5b3550;border-radius:16px;box-shadow:0 4px 0 rgba(91,53,80,.15)}
 .swatch i{border-radius:6px;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}
 
@@ -572,7 +624,7 @@ if(!PROFILES.some(p=>p.id===PROFILE))PROFILE=null;
 const PROF=PROFILES.find(p=>p.id===PROFILE)||{name:'',def:'bunny'};
 const GLS={get(k,d){try{const v=localStorage.getItem('kd-g-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('kd-g-'+k,JSON.stringify(v))}catch(e){}}};
 const LS={get(k,d){try{const v=localStorage.getItem('kd-'+(PROFILE||'_')+'-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
-          set(k,v){if(!PROFILE)return;try{localStorage.setItem('kd-'+PROFILE+'-'+k,JSON.stringify(v))}catch(e){}}};
+          set(k,v){if(!PROFILE)return;try{localStorage.setItem('kd-'+PROFILE+'-'+k,JSON.stringify(v));if(window.__cloudReady&&!['progSync','subRefresh','notifAsked','notifOn','cloudPush'].includes(k)){localStorage.setItem('kd-'+PROFILE+'-_mod',String(Date.now()));if(typeof scheduleCloud==='function')scheduleCloud(k==='seenMsg')}}catch(e){}}};
 const S={sound:LS.get('sound',true),music:LS.get('music',false),auto:LS.get('auto',true),
   name:LS.get('name','')||PROF.name,msg:LS.get('msg',''),pet:LS.get('pet',PROF.def),
   dark:LS.get('dark',false),theme:LS.get('theme','auto'),themeAcc:LS.get('themeAcc',true),
@@ -626,7 +678,13 @@ const PALETTES={
   bonbon:['#ff8fb8','#ffd166','#8ce99a','#74c0fc','#b197fc','#ffa94d','#63e6be','#f783ac','#d8f5a2'],
   tropical:['#74c0fc','#63e6be','#ffd8a8','#b197fc','#99e9f2','#ff8787','#a9e34b','#e599f7','#ffe066'],
   sunset:['#ff922b','#f783ac','#ffd43b','#9775fa','#ff6b6b','#fcc2d7','#ffa8a8','#e599f7','#ffe8cc'],
-  rainbow:['#ff8787','#ffa94d','#ffe066','#a9e34b','#69db7c','#66d9e8','#74c0fc','#9775fa','#f783ac']};
+  rainbow:['#ff8787','#ffa94d','#ffe066','#a9e34b','#69db7c','#66d9e8','#74c0fc','#9775fa','#f783ac'],
+  biscuit:['#ffb3c9','#fff1a8','#b8e6a0','#a8d4ff','#d9b8ff','#ffc89e','#a8ece0','#f6a8a8','#fff8ee'],
+  jardin:['#ff9ec4','#ffe066','#ffffff','#a8d4ff','#d6b0ff','#ffb27a','#ff7b7b','#c8f0a8','#7fd8e8'],
+  glace:['#bfe6ff','#e4d4ff','#c8f5ea','#ffd6ec','#fff3bf','#d0e0ff','#b8f0ff','#f0d8ff','#e0ffd8'],
+  galaxie:['#ff5dc8','#5df0ff','#ffe25d','#9d7bff','#5dff9d','#ff8a5d','#5d9dff','#ff5d7b','#d0ff5d'],
+  neon:['#ff3fd0','#3ff0ff','#fff23f','#a35bff','#3fff8a','#ff8a3f','#3f8aff','#ff3f6a','#c8ff3f'],
+  bois:['#f2b8a0','#f2dc9b','#bfd99b','#a8cfe0','#cdb4e0','#f0c08a','#9bd6c4','#e8a8b8','#e6d6c0']};
 const activePalette=()=>[...activePalette0(),'#ffffff'];
 const activePalette0=()=>S.skin!=='pastel'?PALETTES[S.skin]:(THEMES[activeTheme()].pal||PALETTES.pastel);
 const PETS=[
@@ -679,7 +737,7 @@ const FXS=[{id:'hearts',name:'Cœurs',ico:'💗',price:0},{id:'stars',name:'Éto
   {id:'petals',name:'Pétales',ico:'🌸',rar:'r'},{id:'notes',name:'Notes de musique',ico:'🎶',rar:'r'},{id:'rainbow',name:'Arc-en-ciel',ico:'🌈',rar:'e'},
   {id:'fireworks',name:'Feu d\'artifice',ico:'🎆',rar:'e'},{id:'gold',name:'Poussière d\'or',ico:'✨',rar:'l'}];
 FXS.forEach(f=>{if(f.rar)f.price=RAR[f.rar].price});
-const SKINS=[{id:'pastel',name:'Pastel',price:0},{id:'bonbon',name:'Bonbon',price:60},{id:'tropical',name:'Tropical',price:80},
+const SKINS=[{id:'pastel',name:'Pastel',price:0},{id:'biscuit',name:'Biscuit',price:90},{id:'jardin',name:'Jardin',price:90},{id:'bois',name:'Chalet en bois',price:90},{id:'glace',name:'Glace',price:120},{id:'galaxie',name:'Galaxie',price:160},{id:'neon',name:'Néon',price:160},{id:'bonbon',name:'Bonbon',price:60},{id:'tropical',name:'Tropical',price:80},
   {id:'sunset',name:'Coucher de soleil',price:80},{id:'rainbow',name:'Arc-en-ciel',price:120}];
 
 /* =========================================================
@@ -1106,7 +1164,7 @@ function itemPreview(it){
   if(shopTab==='pets')return pet(it.id,'normal',S.eq);
   if(shopTab==='acc')return pet(S.pet,'happy',{...NOEQ,[it.slot]:it.id});
   if(shopTab==='fx')return `<div class="fxico" data-fx="${it.id}">${it.ico}</div>`;
-  return `<div class="swatch">${PALETTES[it.id].map(c=>`<i style="background:${c}"></i>`).join('')}</div>`;
+  const pl=PALETTES[it.id],ids=[0,0,1,2,0,1,2,2,3];return `<div class="frame mini sk-${it.id}"><div class="board">${ids.map((k,i)=>`<div class="cell"><div class="tile" style="background-color:${pl[k]};color:${pl[k]}">${i===4?pet(S.pet,'normal',NOEQ):''}</div></div>`).join('')}</div></div>`;
 }
 function renderShop(){
   renderBerries();document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('sel',t.dataset.t===shopTab));
@@ -1388,12 +1446,12 @@ function resetGame(){const n=P.n;st=Array.from({length:n},()=>Array(n).fill(0));
   $('lvl').textContent=diffName;board.classList.remove('dead');$('vig').classList.remove('on');
   buildBoard();renderHearts();render();setBuddy('idle','normal',mpick(['C\'est parti !','On y va ! ✨','Je t\'aide !']));poke();t0=Date.now();clearInterval(timer);timer=setInterval(tick,500);tick()}
 function tick(){if(!over)$('tm').textContent='⏱ '+fmt(Math.floor((Date.now()-t0)/1000))}
-function buildBoard(){const n=P.n,g=P.g,pal=activePalette();board.style.gridTemplateColumns=`repeat(${n},1fr)`;board.innerHTML='';
+function buildBoard(){const n=P.n,g=P.g,pal=activePalette();$('frame').className='frame sk-'+S.skin;board.style.gridTemplateColumns=`repeat(${n},1fr)`;board.innerHTML='';
   board.classList.remove('intro');void board.offsetWidth;board.classList.add('intro');const GI=1.6,GX=3.2;
   for(let r=0;r<n;r++)for(let c=0;c<n;c++){const id=g[r][c],top=r===0||g[r-1][c]!==id,bot=r===n-1||g[r+1][c]!==id,lef=c===0||g[r][c-1]!==id,rig=c===n-1||g[r][c+1]!==id;
     const cell=document.createElement('div');cell.className='cell';cell.dataset.r=r;cell.dataset.c=c;cell.style.animationDelay=((r+c)*.035)+'s';
     const t=document.createElement('div');t.className='tile';
-    Object.assign(t.style,{top:(top?GX:GI)+'px',bottom:(bot?GX:GI)+'px',left:(lef?GX:GI)+'px',right:(rig?GX:GI)+'px',backgroundColor:pal[id%pal.length]});
+    Object.assign(t.style,{top:(top?GX:GI)+'px',bottom:(bot?GX:GI)+'px',left:(lef?GX:GI)+'px',right:(rig?GX:GI)+'px',backgroundColor:pal[id%pal.length],color:pal[id%pal.length]});
     cell.appendChild(t);board.appendChild(cell)}
   setTimeout(()=>board.classList.remove('intro'),2*n*35+650)}
 const tileEl=(r,c)=>board.children[r*P.n+c].firstElementChild;
@@ -1680,7 +1738,7 @@ function showInbox(){
     :`<div class="soft mailrow locked">🔒 <span>Lettre du niveau ${l.niveau}</span><small>Atteins le niveau ${l.niveau+1}</small></div>`));
   const sent=sentW.map(w=>`<div class="soft mailrow" data-k="s${w.id}">📤 <span>${esc(w.texte.slice(0,28))}${w.texte.length>28?'…':''}<small> · ${fmtDate(w.date)}</small></span>${del('s'+w.id)}</div>`);
   openModal(`<h2>${letters('Boîte aux lettres')}</h2>
-    <div class="mbtns" style="margin-top:10px"><button class="candy" id="mWrite">✍️ Écrire à ${esc(fromName())}</button>${PROFILE!==ADMIN_PROFILE?'<button class="candy" id="mRev" style="--a:#c9a8ff;--b:#8d5fdf;--d:#6a3fb8;flex:.6">😈 Piéger</button>':''}</div>
+    <div class="mbtns" style="margin-top:10px"><button class="candy" id="mWrite">✍️ Écrire à ${esc(fromName())}</button>${true?'<button class="candy" id="mRev" style="--a:#c9a8ff;--b:#8d5fdf;--d:#6a3fb8;flex:.6">😈 Piéger</button>':''}</div>
     <div class="maillist">${rows.join('')||'<p class="small">Pas encore de lettre… 💭</p>'}</div>
     ${sent.length?`<div class="sect" style="margin:4px 0 8px">Mots envoyés</div><div class="maillist">${sent.join('')}</div>`:''}
     <div class="mbtns"><button class="soft" id="mOk">Fermer</button></div>`);
@@ -1876,18 +1934,15 @@ const TROLLS=[
   {id:'fuite',ico:'🏃',name:'Mascotte fugueuse',desc:"Sa mascotte s'enfuit quand elle essaie de la toucher"},
   {id:'reset',ico:'🗑️',name:'Fausse remise à zéro',desc:'« Progression supprimée… Niveau 1 »'}];
 const vengeanceOn=()=>!(MSG.config&&MSG.config.vengeance===false);
-const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id)&&(PROFILE!==ADMIN_PROFILE||vengeanceOn()||!t.de||t.de===S.name));
+const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id)&&(!t.date||Date.now()-new Date(t.date)<3*864e5)&&(PROFILE!==ADMIN_PROFILE||vengeanceOn()||!t.de||t.de===S.name));
 let trollT=null;
-function checkTroll(){const t=pendingTroll();if(!t||trollT)return;
-  trollT=setTimeout(()=>{trollT=null;if(ov.classList.contains('show')){checkTroll();return}markSeen('t'+t.id);runTroll(t.type,t.de)},6000+mr()*6000)}
+function checkTroll(){if(!window.__cloudReady)return;const t=pendingTroll();if(!t||trollT)return;
+  trollT=setTimeout(()=>{trollT=null;if(ov.classList.contains('show')){checkTroll();return}markSeen('t'+t.id);runTroll(t.type,t.de)},1200+mr()*1300)}
 function trollReveal(by){setTimeout(()=>{sfx.win();confetti();
   if(window.__preview){window.__preview=false;toast('Voilà ce qu\'il va subir 😈');setTimeout(showRevenge,1200);return}
-  if(PROFILE===ADMIN_PROFILE){toast(`😂 Troll signé ${by||fromName()} ❤️`);return}
-  openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters(PROFILE==='noellya'?'Trollée ! 😂':'Trollé ! 😂')}</h2><p style="font-weight:600;color:var(--plum2);margin:4px 0 14px">C'était un coup de ${esc(by||fromName())}… Tu vas le laisser s'en tirer comme ça ?</p>
-    <div class="mbtns"><button class="soft" id="rvNo">Je pardonne 😇</button><button class="candy" id="rvYes">Vengeance 😈</button></div>`,true);
-  $('rvNo').onclick=()=>{sfx.ui();closeModal()};$('rvYes').onclick=()=>{sfx.ui();showRevenge()}},300)}
+  trollBanner(by)},300)}
 function showRevenge(){
-  if(!vengeanceOn()){closeModal();sfx.no();openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters('Vengeance bloquée')}</h2>
+  if(PROFILE!==ADMIN_PROFILE&&!vengeanceOn()){closeModal();sfx.no();openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters('Vengeance bloquée')}</h2>
     <p style="font-weight:600;color:var(--plum2);margin:4px 0 14px">🔒 ${esc(fromName())} a activé son bouclier anti-vengeance… 😇<br>Il est intouchable pour l'instant.</p>
     <div class="mbtns"><button class="candy" id="mOk">Grrr 😤</button></div>`);$('mOk').onclick=()=>{sfx.ui();closeModal()};return}
   const to=PROFILES.find(p=>p.id!==PROFILE);
@@ -1900,7 +1955,7 @@ function showRevenge(){
     setTimeout(()=>{window.__preview=true;runTroll(t,S.name)},350)});
   modal.querySelectorAll('[data-send]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='…';
     const tr={id:uid(),pour:to.id,type:b.dataset.send,de:S.name,date:new Date().toISOString()};
-    try{if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);if(data.config&&data.config.vengeance===false){MSG=data;showRevenge();return}data.trolls=[...(data.trolls||[]),tr];await ghWrite('messages.json',data,sha,'😈 vengeance de '+S.name);MSG=data;GLS.set('msgcache',MSG)}
+    try{if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);if(PROFILE!==ADMIN_PROFILE&&data.config&&data.config.vengeance===false){MSG=data;showRevenge();return}data.trolls=[...(data.trolls||[]),tr];await ghWrite('messages.json',data,sha,'😈 vengeance de '+S.name);MSG=data;GLS.set('msgcache',MSG)}
       else throw new Error('jeu pas relié');
       sfx.buy();closeModal();toast(`😈 Piège posé ! ${to.name} ne se doute de rien…`);const r=b.getBoundingClientRect();burst(innerWidth/2,innerHeight/2,{n:24,kinds:['emoji'],chars:['😈','💥','🐸'],speed:8,size:12})}
     catch(e){sfx.no();b.disabled=false;b.textContent='Piéger';toast('Oups : '+e.message)}});
@@ -1996,7 +2051,8 @@ runTroll=function(type,by){
     for(let i=0;i<22;i++){const k=document.createElement('i');const sz=40+mr()*28;k.innerHTML=`<b style="transform:rotate(${(mr()-.5)*60}deg)">💋</b>`;
       Object.assign(k.style,{left:(4+mr()*80)+'vw',top:(6+mr()*80)+'vh',width:sz+'px',height:sz+'px',fontSize:sz*.8+'px',animationDelay:i*.05+'s'});d.appendChild(k)}
     d.onpointerdown=e=>{let best=null,bd=1e9;d.querySelectorAll('i').forEach(k=>{const r=k.getBoundingClientRect(),dx=r.left+r.width/2-e.clientX,dy=r.top+r.height/2-e.clientY,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;best=k}});
-      if(best&&bd<70*70){const r=best.getBoundingClientRect();best.remove();burst(r.left+r.width/2,r.top+r.height/2,{n:6,kinds:['heart'],speed:3,size:7});tone(1200+mr()*600,{dur:.08,vol:.08});buzz(10);left--;if(!left){d.remove();trollReveal(by)}}};
+      if(best&&bd<70*70){const r=best.getBoundingClientRect();best.remove();burst(r.left+r.width/2,r.top+r.height/2,{n:6,kinds:['heart'],speed:3,size:7});tone(1200+mr()*600,{dur:.08,vol:.08});buzz(10);left--;if(!left){setTimeout(()=>d.remove(),450);trollReveal(by)}}};
+    d.onclick=e=>e.stopPropagation();
     toast('Enlève tous les bisous 😘');setTimeout(()=>{if(document.body.contains(d)){d.remove();trollReveal(by)}},30000)}
   else if(type==='gravite'){
     const scr=[...document.querySelectorAll('.screen:not(.hidden) > *')];tone(600,{dur:1,vol:.1,to:80});
@@ -2012,8 +2068,8 @@ runTroll=function(type,by){
     const mv=setInterval(()=>{x=Math.max(10,Math.min(innerWidth-40,x+(mr()-.5)*160));y=Math.max(60,Math.min(innerHeight-60,y+(mr()-.5)*160));f.style.transform=`translate(${x}px,${y}px) rotate(${mr()*360}deg)`;
       if(osc)osc.frequency.setTargetAtTime(180+mr()*120,AC.currentTime,.05)},260);
     const stop=()=>{if(!alive)return;alive=false;clearInterval(mv);if(osc){osc.stop()}};
-    const catcher=overlayDiv('flycatch');catcher.onpointerdown=e=>{const r=f.getBoundingClientRect(),dx=r.left+r.width/2-e.clientX,dy=r.top+r.height/2-e.clientY;if(dx*dx+dy*dy<75*75)f.onpointerdown(e)};
-    f.onpointerdown=e=>{e.stopPropagation();if(!alive)return;catcher.remove();stop();f.innerHTML='<b>💥</b>';sfx.land();buzz(80);setTimeout(()=>{f.remove();trollReveal(by)},600)};
+    const catcher=overlayDiv('flycatch');catcher.onclick=e=>e.stopPropagation();catcher.onpointerdown=e=>{const r=f.getBoundingClientRect(),dx=r.left+r.width/2-e.clientX,dy=r.top+r.height/2-e.clientY;if(dx*dx+dy*dy<75*75)f.onpointerdown(e)};
+    f.onpointerdown=e=>{e.stopPropagation();if(!alive)return;setTimeout(()=>catcher.remove(),450);stop();f.innerHTML='<b>💥</b>';sfx.land();buzz(80);setTimeout(()=>{f.remove();trollReveal(by)},600)};
     toast('Bzzz… écrase-la ! 🪰');setTimeout(()=>{if(alive){stop();f.remove();catcher.remove();trollReveal(by)}},25000)}
   else if(type==='disco'){root.classList.add('disco');let b=0;const iv=setInterval(()=>{tone(b%2?110:82,{dur:.15,vol:.25,to:50});if(b%2)noiseBurst(.05,.15,6000);b++},230);
     confetti();setTimeout(()=>{clearInterval(iv);root.classList.remove('disco');trollReveal(by)},8000)}
@@ -2047,6 +2103,62 @@ function renderTrolls(B,head){
     try{const r=await saveMSG();sfx.buy();toast(r==='ok'?'😈 Troll envoyé ! Il se déclenchera à sa prochaine ouverture':'Enregistré sur ce téléphone seulement')}catch(e){sfx.no();toast('Erreur : '+e.message)}
     renderAdmin()});
   B.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{MSG.trolls=(MSG.trolls||[]).filter(t=>t.id!==b.dataset.del);try{await saveMSG()}catch(e){}renderAdmin()});
+}
+
+/* =========================================================
+   Sauvegarde en ligne de chaque profil (jouer sur n'importe quel iPhone)
+   ========================================================= */
+const LOCAL_ONLY=['progSync','subRefresh','notifAsked','notifOn','_mod','cloudPush'];
+let cloudT=null;
+const pfx=()=>'kd-'+PROFILE+'-';
+function localMod(){return+(localStorage.getItem(pfx()+'_mod')||0)}
+function saveBlob(){const o={};Object.keys(localStorage).forEach(k=>{if(!k.startsWith(pfx()))return;const kk=k.slice(pfx().length);if(!LOCAL_ONLY.includes(kk))o[kk]=localStorage.getItem(k)});return o}
+const unionSeen=(a,b)=>[...new Set([...(a||[]),...(b||[])])];
+function scheduleCloud(fast){if(!window.__cloudReady||!PROFILE||!repoInfo()||!GLS.get('token',''))return;clearTimeout(cloudT);cloudT=setTimeout(cloudPush,fast?800:6000)}
+async function cloudPush(){
+  if(!PROFILE||!repoInfo()||!GLS.get('token',''))return;
+  const path=`sauvegardes/${PROFILE}.json`;
+  for(let i=0;i<2;i++){try{
+    const{data,sha}=await ghFile(path);
+    const blob=saveBlob();
+    if(data&&data.keys&&data.keys.seenMsg){const merged=unionSeen(JSON.parse(blob.seenMsg||'[]'),JSON.parse(data.keys.seenMsg));blob.seenMsg=JSON.stringify(merged);localStorage.setItem(pfx()+'seenMsg',blob.seenMsg)}
+    await ghWrite(path,{_mod:localMod()||Date.now(),keys:blob},sha,'☁️ sauvegarde '+S.name);localStorage.setItem(pfx()+'cloudPush',String(Date.now()));return}catch(e){if(i)return;await new Promise(r=>setTimeout(r,900))}}
+}
+async function cloudPull(){
+  if(!PROFILE||!repoInfo()||!GLS.get('token','')){window.__cloudReady=true;return}
+  try{
+    const{data}=await ghFile(`sauvegardes/${PROFILE}.json`);
+    if(data&&data.keys){
+      const localSeen=LS.get('seenMsg',[]),remoteSeen=JSON.parse(data.keys.seenMsg||'[]');
+      const score=g=>{try{const st=JSON.parse(g('stats')||'{}');return (st.wins||0)*3+(+g('lvl')||1)+(+g('clsLvl')||1)}catch(e){return 0}};
+      const legacy=!localMod(),lsScore=score(k=>localStorage.getItem(pfx()+k)),rmScore=score(k=>data.keys[k]);
+      if(legacy&&lsScore>rmScore){localStorage.setItem(pfx()+'_mod',String(Date.now()))}
+      else if((data._mod||0)>localMod()){
+        Object.keys(localStorage).filter(k=>k.startsWith(pfx())&&!LOCAL_ONLY.includes(k.slice(pfx().length))).forEach(k=>localStorage.removeItem(k));
+        Object.entries(data.keys).forEach(([k,v])=>localStorage.setItem(pfx()+k,v));
+        localStorage.setItem(pfx()+'seenMsg',JSON.stringify(unionSeen(localSeen,remoteSeen)));
+        localStorage.setItem(pfx()+'_mod',String(data._mod));
+        try{sessionStorage.setItem('kd-go','1')}catch(e){}
+        $('wtxt').textContent='☁️ Synchronisation…';$('wipe').classList.add('on');setTimeout(()=>location.reload(),350);return;
+      }
+      localStorage.setItem(pfx()+'seenMsg',JSON.stringify(unionSeen(localSeen,remoteSeen)));
+    }else if(!localMod()&&localStorage.getItem(pfx()+'stats'))localStorage.setItem(pfx()+'_mod',String(Date.now()));
+  }catch(e){}
+  window.__cloudReady=true;checkTroll();renderInboxBtn();if(localMod()>+(localStorage.getItem(pfx()+'cloudPush')||0))scheduleCloud();
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&window.__cloudReady&&localMod()>+(localStorage.getItem(pfx()+'cloudPush')||0)){clearTimeout(cloudT);cloudPush()}});
+
+/* ---------- Bannière après un troll ---------- */
+function trollBanner(by){
+  document.querySelectorAll('.tbanner').forEach(e=>e.remove());
+  const b=document.createElement('div');b.className='tbanner';
+  b.innerHTML=`<div class="tbp">${pet(S.pet,'sad')}</div><div class="tbt"><b>${PROFILE==='noellya'?'Trollée':'Trollé'} par ${esc(by||fromName())} 😂</b><small>Tu te venges ?</small></div>
+    <button class="soft" data-a="no">Pardonner</button><button class="candy" data-a="yes">Vengeance</button>`;
+  document.body.appendChild(b);requestAnimationFrame(()=>b.classList.add('in'));
+  const close=()=>{b.classList.remove('in');setTimeout(()=>b.remove(),350)};
+  b.querySelector('[data-a=no]').onclick=()=>{sfx.ui();close();toast('😇 Pardonné… pour cette fois')};
+  b.querySelector('[data-a=yes]').onclick=()=>{sfx.ui();close();showRevenge()};
+  setTimeout(close,14000);
 }
 /* =========================================================
    Notifications (rappel du défi + surprises d'Ethan)
@@ -2097,7 +2209,7 @@ setTimeout(()=>{if(PROFILE&&LS.get('notifOn',false)&&pushOK()&&isApp()&&Notifica
 
 $('inboxBtn').onclick=()=>{sfx.ui();showInbox()};
 // Vérifie les nouveautés pendant que le jeu est ouvert (trolls, mots, cadeaux)
-setInterval(()=>{if(PROFILE&&document.visibilityState==='visible')loadMSG()},20000);
+setInterval(()=>{if(PROFILE&&document.visibilityState==='visible')loadMSG()},8000);
 document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('bgpause',document.visibilityState!=='visible');if(PROFILE&&document.visibilityState==='visible')loadMSG()});
 
 /* démarrage */
@@ -2109,6 +2221,7 @@ document.querySelectorAll('.ttl').forEach(h=>{if(!h.innerHTML)h.innerHTML=[...'K
 if(!PROFILE){$('splash').classList.add('hidden');showPicker()}
 else{let goMenu=false;try{goMenu=!!sessionStorage.getItem('kd-go');sessionStorage.removeItem('kd-go')}catch(e){}
   if(goMenu){renderMenu();showScreen('menu');if(!LS.get('seenRules3',false)){LS.set('seenRules3',true);setTimeout(()=>showRules(true),600)}}}
+if(PROFILE)cloudPull();else window.__cloudReady=true;
 loadMSG();
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude|anthropic|usercontent/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
