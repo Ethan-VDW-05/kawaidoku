@@ -254,6 +254,20 @@ body.night #bg .twk{opacity:1}
 .notifban{width:100%;display:flex;align-items:center;gap:8px;border-radius:18px;padding:9px 10px 9px 12px;font-size:13px;font-weight:600;text-align:left;animation:revealIn .5s}
 .notifban b{font-size:22px;animation:wobble 1.2s ease-in-out infinite}.notifban span{flex:1}
 .notifban .candy{font-size:14px;border-radius:14px;padding:8px 12px}.notifban .nb{border:none;background:none;color:var(--plum2);font:600 12px inherit;font-family:inherit;cursor:pointer;padding:4px}
+.scream{position:fixed;inset:0;z-index:99;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:shakebox .08s linear infinite}
+.scream .sface{width:120vw;max-width:700px;animation:zoomin .25s cubic-bezier(.2,1.8,.4,1) forwards;filter:contrast(1.3) saturate(1.6) drop-shadow(0 0 40px red)}
+.scream .stxt{position:absolute;bottom:12vh;font-size:72px;font-weight:700;color:#ff1a3c;text-shadow:0 0 20px #f00}
+.scream.out{opacity:0;transition:opacity .35s}
+@keyframes zoomin{from{transform:scale(.05)}to{transform:scale(1.15)}}
+.app.flip{transform:rotate(180deg);transition:transform .8s cubic-bezier(.3,1.4,.5,1)}.app{transition:transform .8s}
+.suivi{background:var(--solid);border-radius:20px;padding:12px;margin-bottom:12px}
+.suivi .sh{display:flex;align-items:center;gap:10px;margin-bottom:6px;text-align:left}.suivi .sh b{font-size:19px}.suivi .sh small{display:block;font-size:12px;opacity:.7}
+.suivi .sp{width:54px;height:54px}.suivi .sp .petsvg{width:100%;height:100%}
+.suivi .statgrid{margin:6px 0 0}.suivi .statgrid div{background:var(--card)}
+.trolls{display:grid;gap:9px;margin:4px 0 14px}
+.troll{display:flex;align-items:center;gap:10px;border-radius:18px;padding:10px;text-align:left}
+.troll .ti{font-size:30px}.troll .tt{flex:1}.troll .tt b{display:block;font-size:14.5px}.troll .tt small{font-size:11.5px;opacity:.75}
+.troll .tb{display:flex;flex-direction:column;gap:5px}.troll .tb button{border-radius:12px;padding:6px 10px;font-size:12.5px}
 .swatch{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:80px;height:80px;padding:4px;background:#5b3550;border-radius:16px;box-shadow:0 4px 0 rgba(91,53,80,.15)}
 .swatch i{border-radius:6px;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}
 
@@ -440,7 +454,7 @@ body.dark .sw{background:#5a4170}
   <section class="screen hidden" id="admin">
     <div class="topbar"><button class="soft iconbtn" id="admBack">←</button><h3>🔐 Admin</h3><div style="width:44px"></div></div>
     <div class="atabs">
-      <button class="soft atab" data-a="msg">💌 Messages</button><button class="soft atab" data-a="letters">📜 Lettres</button>
+      <button class="soft atab" data-a="suivi">📊 Suivi</button><button class="soft atab" data-a="troll">😈 Trolls</button><button class="soft atab" data-a="msg">💌 Messages</button><button class="soft atab" data-a="letters">📜 Lettres</button>
       <button class="soft atab" data-a="prog">📅 Programmés</button><button class="soft atab" data-a="gift">🎁 Cadeaux</button>
       <button class="soft atab" data-a="test">🛠️ Test</button><button class="soft atab" data-a="conn">⚙️ Connexion</button>
     </div>
@@ -1030,6 +1044,7 @@ function renderMenu(){
   document.querySelectorAll('.sub').forEach(e=>e.textContent=subTxt());
   {const sb=document.querySelector('#menu .sub');sb.classList.add('subbtn');sb.innerHTML=`Pour ${esc(S.name)} 💖 <small>changer</small>`;sb.onclick=()=>{sfx.ui();switchPlayer()}}
   renderInboxBtn();if(typeof renderNotifBanner==='function')renderNotifBanner();setTimeout(checkInbox,700);
+  if(typeof syncProgress==='function'){syncProgress();checkTroll()}
   renderDaily();renderEgg();{const b=$('shopBtn');let n=b.querySelector('.notif');const on=claimable();if(on&&!n){n=document.createElement('span');n.className='notif';b.appendChild(n)}if(!on&&n)n.remove()}$('maraSub').textContent=`Niveau ${clsLvl()} · difficulté surprise 🎲`;const u=unlocked();$('advSub').textContent=`Niveau ${u} · ${bandOf(u).name}`;renderAutoBtn();
 }
 function renderAutoBtn(){$('autoGBtn').classList.toggle('on',S.auto);$('autoGBtn').classList.toggle('offb',!S.auto);$('autoLbl').textContent=S.auto?'Auto ✕':'Auto off'}
@@ -1418,6 +1433,7 @@ function closeModal(){ov.classList.remove('show')}
 ov.addEventListener('click',e=>{if(e.target===ov&&!modalLock){sfx.ui();closeModal()}});
 const letters=t=>[...t].map((ch,i)=>`<span style="animation-delay:${.15+i*.05}s">${ch===' '?'&nbsp;':esc(ch)}</span>`).join('');
 function win(){
+  setTimeout(()=>syncProgress(true),1500);
   over=true;clearInterval(timer);clearTimeout(idleT);$('vig').classList.remove('on');setBuddy('party','happy','On a gagné ! 🎉');
   const s=Math.floor((Date.now()-t0)/1000),adv=mode==='adv',daily=mode==='daily',cls=mode==='classic',k=adv?'lvbest'+curL:daily?'dbest':cls?'cbest'+curTrack.id:'best'+P.n,prev=LS.get(k,null),rec=!prev||s<prev;
   if(rec)LS.set(k,s);LS.set('wins',LS.get('wins',0)+1);
@@ -1547,7 +1563,7 @@ function switchPlayer(){try{sessionStorage.removeItem('kd-profile')}catch(e){}sf
 /* =========================================================
    Messages d'Ethan (synchronisés via GitHub)
    ========================================================= */
-const MSG_EMPTY=()=>({victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[]});
+const MSG_EMPTY=()=>({victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[],trolls:[]});
 let MSG=Object.assign(MSG_EMPTY(),GLS.get('msgcache',{}));
 const isoDay=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function repoInfo(){const c=GLS.get('repo',null);if(c&&c.owner&&c.repo)return c;const h=location.hostname;
@@ -1563,7 +1579,7 @@ async function fetchRemote(auth){
 }
 async function loadMSG(){
   if(GLS.get('token','')){try{const{data}=await fetchRemote(true);MSG=data;GLS.set('msgcache',MSG)}catch(e){}}
-  renderInboxBtn();if(!$('menu').classList.contains('hidden'))checkInbox();
+  renderInboxBtn();if(!$('menu').classList.contains('hidden'))checkInbox();if(PROFILE)checkTroll();
 }
 async function saveMSG(){
   GLS.set('msgcache',MSG);
@@ -1686,7 +1702,7 @@ function showPin(){
     if(code.length===4){if(code===ADMIN_PIN){sfx.buy();setTimeout(()=>{closeModal();openAdmin()},250)}
       else{sfx.no();$('pinDots').animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],{duration:300});code='';setTimeout(draw,300)}}});
 }
-let admTab='msg',admTo='noellya';
+let admTab='suivi',admTo='noellya';
 function openAdmin(){go(()=>{showScreen('admin');renderAdmin()});fetchRemote(!!GLS.get('token','')).then(({data})=>{MSG=data;GLS.set('msgcache',MSG);renderAdmin()}).catch(()=>{})}
 $('admBack').onclick=()=>{sfx.ui();go(()=>{renderMenu();showScreen('menu')})};
 document.querySelectorAll('.atab').forEach(t=>t.onclick=()=>{admTab=t.dataset.a;sfx.ui();renderAdmin()});
@@ -1765,6 +1781,8 @@ function renderAdmin(){
       if(t==='reset'){if(b.dataset.c){Object.keys(localStorage).filter(k=>k.startsWith('kd-'+PROFILE+'-')).forEach(k=>localStorage.removeItem(k));location.reload()}
         else{b.dataset.c='1';b.textContent='⚠️ Sûr ? Re-tape'}}
     });
+  }else if(admTab==='suivi'){renderSuivi(B,h);
+  }else if(admTab==='troll'){renderTrolls(B,h);
   }else if(admTab==='conn'){
     const r=repoInfo()||{owner:'',repo:''};
     h+=`<p class="small">Les messages sont rangés dans un dépôt GitHub <b>privé</b>. À faire une fois sur chaque iPhone : colle le même token sur ton iPhone et sur le sien (voir LISEMOI). Le token reste uniquement sur ce téléphone.</p>
@@ -1780,6 +1798,113 @@ function renderAdmin(){
   }
 }
 
+/* =========================================================
+   Suivi de progression (chaque téléphone envoie la sienne)
+   ========================================================= */
+function progSnapshot(){
+  return {nom:S.name,maj:new Date().toISOString(),aventure:unlocked(),classique:clsLvl(),fraises:S.berries,victoires:STATS.wins,
+    sansErreur:STATS.perfect,precision:STATS.placed+STATS.errors?Math.round(STATS.placed/(STATS.placed+STATS.errors)*100):100,
+    tempsJeu:STATS.time,serie:curStreak(),meilleureSerie:LS.get('bestStreak',0),defiFait:dailyDone(),mascotte:S.pet,eq:S.eq,
+    accessoires:ITEMS.filter(i=>S.owned.includes(i.id)).length,mascottes:PETS.filter(p=>p.price===0&&!p.egg&&!p.req||S.owned.includes(p.id)).length,
+    meilleursTemps:Object.fromEntries([5,6,7,8,9].map(n=>[n,LS.get('best'+n,null)]))};
+}
+let progT=null;
+function syncProgress(now){
+  if(!PROFILE||!repoInfo()||!GLS.get('token',''))return;
+  clearTimeout(progT);
+  progT=setTimeout(async()=>{
+    if(!now&&Date.now()-LS.get('progSync',0)<60000)return;
+    try{const path=`progression/${PROFILE}.json`;let sha=null;try{sha=(await ghFile(path)).sha}catch(e){}
+      await ghWrite(path,progSnapshot(),sha,'📊 progression '+S.name);LS.set('progSync',Date.now())}catch(e){}
+  },now?300:2500);
+}
+const ago=iso=>{const m=Math.round((Date.now()-new Date(iso))/60000);return m<1?"à l'instant":m<60?`il y a ${m} min`:m<1440?`il y a ${Math.round(m/60)} h`:`il y a ${Math.round(m/1440)} j`};
+async function renderSuivi(B,head){
+  B.innerHTML=head+'<p class="small">Chargement…</p>';
+  const cards=await Promise.all(PROFILES.map(async p=>{try{return[p,(await ghFile(`progression/${p.id}.json`)).data]}catch(e){return[p,null]}}));
+  if(admTab!=='suivi')return;
+  B.innerHTML=head+cards.map(([p,d])=>!d?`<div class="suivi"><div class="sh"><b>${esc(p.name)}</b></div><p class="small">Pas encore de données (il faut que son iPhone soit relié et qu'elle joue une fois).</p></div>`
+    :`<div class="suivi"><div class="sh"><div class="sp">${pet(d.mascotte||p.def,'happy',d.eq||NOEQ)}</div><div><b>${esc(d.nom||p.name)}</b><small>Dernière partie : ${ago(d.maj)}</small></div></div>
+      <div class="statgrid">
+        <div>🗺️ Aventure<b>Niv. ${d.aventure}</b></div><div>⭐ Classique<b>Niv. ${d.classique}</b></div>
+        <div>🏆 Victoires<b>${d.victoires}</b></div><div>🍓 Fraises<b>${d.fraises}</b></div>
+        <div>🔥 Série<b>${d.serie} j ${d.defiFait?'✅':'⏳'}</b></div><div>🎯 Précision<b>${d.precision}%</b></div>
+        <div>⏱️ Temps de jeu<b>${Math.floor(d.tempsJeu/3600)}h ${Math.floor(d.tempsJeu%3600/60)}m</b></div><div>🎀 Accessoires<b>${d.accessoires}/${ITEMS.length}</b></div>
+      </div></div>`).join('')+`<button class="soft abtn" id="sRef">🔄 Actualiser</button>`;
+  $('sRef').onclick=()=>{sfx.ui();renderSuivi(B,head)};
+}
+
+/* =========================================================
+   Trolls 😈 (envoyés depuis l'admin, joués une seule fois)
+   ========================================================= */
+const TROLLS=[
+  {id:'screamer',ico:'😱',name:'Screamer',desc:'Sa mascotte surgit en plein écran en hurlant'},
+  {id:'envers',ico:'🙃',name:"À l'envers",desc:'Tout le jeu se retourne pendant 15 s'},
+  {id:'bug',ico:'💥',name:'Faux bug',desc:'« Erreur : toutes tes fraises ont été supprimées »'},
+  {id:'pluie',ico:'🐸',name:'Pluie de grenouilles',desc:"Une avalanche d'emojis envahit l'écran"},
+  {id:'fuite',ico:'🏃',name:'Mascotte fugueuse',desc:"Sa mascotte s'enfuit quand elle essaie de la toucher"},
+  {id:'reset',ico:'🗑️',name:'Fausse remise à zéro',desc:'« Progression supprimée… Niveau 1 »'}];
+const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id));
+let trollT=null;
+function checkTroll(){const t=pendingTroll();if(!t||trollT)return;
+  trollT=setTimeout(()=>{trollT=null;if(ov.classList.contains('show')){checkTroll();return}markSeen('t'+t.id);runTroll(t.type,t.de)},6000+mr()*6000)}
+function trollReveal(by){setTimeout(()=>{toast(`😂 Troll signé ${by||fromName()} ❤️`);sfx.win();confetti()},300)}
+function runTroll(type,by){
+  if(type==='screamer'){
+    const d=document.createElement('div');d.className='scream';d.innerHTML=`<div class="sface">${pet(S.pet,'normal').replace(/fill="#4a2a40"/g,'fill="#e0002a"')}</div><div class="stxt">BOUH !</div>`;
+    document.body.appendChild(d);buzz([400,80,400]);
+    if(AC){const t=AC.currentTime,len=1.1,buf=AC.createBuffer(1,AC.sampleRate*len,AC.sampleRate),ch=buf.getChannelData(0);
+      for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);
+      const src=AC.createBufferSource(),g=AC.createGain();src.buffer=buf;g.gain.value=.5;src.connect(g);g.connect(master);src.start(t);
+      tone(900,{dur:1,type:'sawtooth',vol:.35,to:300});tone(1200,{dur:.9,type:'square',vol:.2,to:500})}
+    setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),400);trollReveal(by)},1700);
+  }else if(type==='envers'){
+    document.querySelector('.app').classList.add('flip');toast('🙃 Hein ?');
+    setTimeout(()=>{document.querySelector('.app').classList.remove('flip');trollReveal(by)},15000);
+  }else if(type==='bug'){
+    const real=S.berries;
+    openModal(`<div style="font-size:60px">⚠️</div><h2 style="color:#e3405f">Erreur critique</h2>
+      <p style="font-weight:600;color:var(--plum2);margin:6px 0 10px">Code 0x8BADF00D · corruption de la sauvegarde.<br>Suppression de tes fraises en cours…</p>
+      <div class="reward" style="color:#e3405f">🍓 <span id="bugN">${real}</span></div>
+      <div class="prog" style="height:12px;margin:8px 0 14px"><i id="bugBar" style="width:0;background:#e3405f;animation:none"></i></div>`,true);
+    modal.classList.add('nopet');sfx.wrong();buzz([200,100,200]);
+    const t0=performance.now();(function f(){const k=Math.min(1,(performance.now()-t0)/2600),n=$('bugN'),b=$('bugBar');if(!n)return;
+      n.textContent=Math.round(real*(1-k));b.style.width=(k*100)+'%';if(k<1)requestAnimationFrame(f);
+      else setTimeout(()=>{openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Je rigole 😘')}</h2><p style="font-weight:600;color:var(--plum2)">Tes ${real} 🍓 sont toujours là.<br>Bisous, ${esc(by||fromName())} 😈</p><div class="mbtns"><button class="candy" id="mOk">Grrr 😤</button></div>`,true);$('mOk').onclick=()=>{closeModal();renderBerries(true)};sfx.win()},900)})();
+  }else if(type==='pluie'){
+    const ems=['🐸','🐸','🐸','💩','🦆'];
+    for(let k=0;k<8;k++)setTimeout(()=>{for(let i=0;i<14;i++)parts.push({x:mr()*innerWidth,y:-40-mr()*80,vx:(mr()-.5)*2,vy:3+mr()*4,g:.12,life:200,max:200,kind:'emoji',ch:mpick(ems),size:12+mr()*10,rot:mr()*6,vr:(mr()-.5)*.2});
+      if(!raf)raf=requestAnimationFrame(loop);tone(300+mr()*200,{dur:.15,type:'square',vol:.05,to:150})},k*450);
+    setTimeout(()=>trollReveal(by),4200);
+  }else if(type==='fuite'){
+    const el=$('menuPet');if(!el||$('menu').classList.contains('hidden')){runTroll('pluie',by);return}
+    let n=0;const flee=e=>{e&&e.stopPropagation();n++;el.style.transition='transform .25s cubic-bezier(.3,1.6,.5,1)';
+      el.style.transform=`translate(${(mr()-.5)*innerWidth*.7}px,${(mr()-.5)*innerHeight*.5}px) rotate(${(mr()-.5)*60}deg)`;tone(1400,{dur:.12,vol:.08,to:2200});
+      if(n>=6){el.removeEventListener('pointerdown',flee,true);setTimeout(()=>{el.style.transform='';trollReveal(by)},500)}};
+    el.addEventListener('pointerdown',flee,true);toast('Attrape-moi si tu peux ! 🏃');flee();
+    setTimeout(()=>{if(n<6){n=5;flee()}},20000);
+  }else if(type==='reset'){
+    openModal(`<div style="font-size:56px">🗑️</div><h2>${letters('Oups…')}</h2><p style="font-weight:600;color:var(--plum2);margin:6px 0 14px">Ta progression a été réinitialisée suite à une mise à jour.<br><b>Aventure : niveau 1</b><br>Toutes tes mascottes et accessoires ont été retirés.</p>
+      <div class="mbtns"><button class="candy" id="mOk">NOOOON 😭</button></div>`,true);modal.classList.add('nopet');sfx.lose();
+    $('mOk').onclick=()=>{openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Poisson ! 🐟')}</h2><p style="font-weight:600;color:var(--plum2)">Rien n'a été supprimé, tout est là 😇<br>— ${esc(by||fromName())}</p><div class="mbtns"><button class="candy" id="mOk2">Je vais me venger 😤</button></div>`,true);$('mOk2').onclick=()=>{closeModal()};sfx.win();confetti()};
+  }
+}
+function renderTrolls(B,head){
+  const to=admTo==='ethan'&&PROFILE==='ethan'?'noellya':admTo;
+  B.innerHTML=head+`<label class="field">Victime 😈<select id="tTo">${profOpts(to)}</select></label>
+    <p class="small">Le troll se déclenche quelques secondes après sa prochaine ouverture du jeu, une seule fois. Pas de notification, c'est une surprise.</p>
+    <div class="trolls">${TROLLS.map(t=>`<div class="soft troll"><div class="ti">${t.ico}</div><div class="tt"><b>${t.name}</b><small>${t.desc}</small></div>
+      <div class="tb"><button class="soft" data-try="${t.id}">Tester</button><button class="candy" data-send="${t.id}">Envoyer</button></div></div>`).join('')}</div>
+    <div class="alist">${(MSG.trolls||[]).slice(-6).reverse().map(t=>`<div class="aitem"><b>${(TROLLS.find(x=>x.id===t.type)||{}).ico||''} ${esc(nameOf(t.pour))} · ${fmtDate(t.date)}</b><span>${(TROLLS.find(x=>x.id===t.type)||{}).name||t.type}</span><button data-del="${t.id}">🗑️</button></div>`).join('')}</div>`;
+  $('tTo').onchange=e=>{admTo=e.target.value};
+  B.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{ensureAudio();runTroll(b.dataset.try,S.name)});
+  B.querySelectorAll('[data-send]').forEach(b=>b.onclick=async()=>{
+    MSG.trolls=[...(MSG.trolls||[]),{id:uid(),pour:$('tTo').value,type:b.dataset.send,de:S.name,date:new Date().toISOString()}];
+    b.disabled=true;b.textContent='…';
+    try{const r=await saveMSG();sfx.buy();toast(r==='ok'?'😈 Troll envoyé ! Il se déclenchera à sa prochaine ouverture':'Enregistré sur ce téléphone seulement')}catch(e){sfx.no();toast('Erreur : '+e.message)}
+    renderAdmin()});
+  B.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{MSG.trolls=(MSG.trolls||[]).filter(t=>t.id!==b.dataset.del);try{await saveMSG()}catch(e){}renderAdmin()});
+}
 /* =========================================================
    Notifications (rappel du défi + surprises d'Ethan)
    ========================================================= */
