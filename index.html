@@ -332,38 +332,11 @@ body.bgpause *{animation-play-state:paused!important}
 .sk-bois{--boardbg:repeating-linear-gradient(90deg,#a0703f 0 14px,#946536 14px 16px,#a87a48 16px 30px)}
 .frame.sk-bois{background:repeating-linear-gradient(0deg,#8a5a2b 0 9px,#7a4e24 9px 11px,#93633a 11px 20px);box-shadow:0 9px 0 #5c3a18,0 22px 44px rgba(92,58,24,.4)}
 .sk-bois .tile{background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 50%,rgba(70,40,10,.15));background-size:100% 100%;border-radius:16%}
-.eyeov{background:#000;pointer-events:auto;display:flex;align-items:center;justify-content:center;animation:fade 3.2s reverse}.eyeov.out{opacity:0;transition:opacity .4s}
-.eyewrap{width:70vw;max-width:360px}.eye{width:100%;aspect-ratio:2/1;background:radial-gradient(ellipse at center,#fff 0 60%,#ffe3e3 61%);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px 10px rgba(255,0,0,.4);animation:zoomin .5s cubic-bezier(.2,1.8,.4,1)}
-.eye .iris{width:40%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 40%,#8a3a2a,#2a0a0a 70%);box-shadow:0 0 0 6px #c0302a,inset 0 0 20px #000;animation:look 3s ease-in-out}
-@keyframes look{0%,100%{transform:translateX(-30%)}50%{transform:translateX(30%)}}
-.eyetxt{position:absolute;bottom:16vh;width:100%;text-align:center;color:#ff3b3b;font-weight:700;font-size:26px;text-shadow:0 0 14px #f00;animation:revealIn .4s}
 .tbanner{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));z-index:97;display:flex;align-items:center;gap:8px;background:var(--solid);border-radius:20px;padding:8px 8px 8px 10px;
   box-shadow:0 6px 0 rgba(91,53,80,.15),0 14px 30px rgba(40,20,40,.3);transform:translateY(-150%);transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
 .tbanner.in{transform:translateY(0)}.tbanner .tbp{width:42px;height:42px;flex-shrink:0}.tbanner .tbp .petsvg{width:100%;height:100%}
 .tbanner .tbt{flex:1;min-width:0;text-align:left}.tbanner .tbt b{display:block;font-size:13.5px;line-height:1.2}.tbanner .tbt small{font-size:12px;opacity:.7}
 .tbanner button{border-radius:13px;padding:8px 9px;font-size:12.5px;flex-shrink:0}
-
-/* ---------- Ensemble ---------- */
-#ctrlBanner{position:fixed;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top));z-index:60;background:linear-gradient(180deg,#c8f0b8,#7fd86a);color:#2a4a1a;font-weight:700;font-size:13.5px;border-radius:16px;padding:9px 12px;text-align:center;box-shadow:0 5px 0 #4a9c3c;transform:translateY(-150%);transition:transform .4s cubic-bezier(.3,1.5,.5,1)}
-#ctrlBanner.show{transform:translateY(0)}#ctrlBanner b{text-decoration:underline;cursor:pointer}
-#spectate{gap:10px}
-.spechead{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:18px;padding:9px 12px}
-.spechead .d{flex:1;text-align:left}.spechead .d b{font-size:16px}.spechead .d small{display:block;font-size:12px;opacity:.7}
-.spechead .live{font-size:11px;font-weight:700;color:#fff;background:#ff4d6d;border-radius:99px;padding:3px 9px;animation:pulse 1.2s infinite}
-#specBoard{display:grid;width:min(calc(100vw - 48px),calc(100dvh - 300px),440px);aspect-ratio:1;background:var(--boardbg);border-radius:18px;padding:3px;margin:0 auto;box-shadow:inset 0 2px 5px rgba(91,53,80,.15)}
-.scell{position:relative;border-radius:20%;margin:1.5px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(60,20,50,.1)}
-.scell .sbw{width:86%;height:86%}.scell .sbw .petsvg{width:100%;height:100%}
-.scell .sx{opacity:.5;font-weight:700;font-size:min(5vw,26px)}
-.specwait{grid-column:1/-1;align-self:center;text-align:center;font-weight:600;color:var(--plum2);padding:30px 10px}
-#spectate.hasctrl #specBoard{box-shadow:inset 0 2px 5px rgba(91,53,80,.15),0 0 0 3px #7fd86a,0 0 18px #7fd86a}
-.spectools{display:flex;gap:8px}.spectools button{flex:1;border-radius:16px;padding:11px 4px;font-size:13.5px}
-.spectools .tsel{display:flex;gap:6px;flex:1}.spectools .tsel button{flex:1}
-.spectools button.sel{background:linear-gradient(180deg,#ffd6e4,#ff8db0);color:#fff;box-shadow:0 4px 0 #e3628d}
-.spechint{font-size:12px;color:var(--plum2);text-align:center;opacity:.8}
-.coophud{position:absolute;top:96px;right:14px;z-index:5;display:flex;align-items:center;gap:6px;background:var(--card);border-radius:14px;padding:5px 10px 5px 6px;font-weight:700;font-size:13px;box-shadow:0 3px 0 rgba(91,53,80,.12)}
-.coophud .petsvg{width:28px;height:28px}
-.ensbtn{width:100%;border-radius:18px;padding:11px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:6px;position:relative}
-
 .swatch{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:80px;height:80px;padding:4px;background:#5b3550;border-radius:16px;box-shadow:0 4px 0 rgba(91,53,80,.15)}
 .swatch i{border-radius:6px;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}
 
@@ -581,7 +554,6 @@ body.dark .sw{background:#5a4170}
     <button class="candy mara" id="maraBtn"><div><div class="big">Classique ⭐</div><div id="maraSub" style="font-size:12.5px;font-weight:600;opacity:.95"></div></div><div class="go">▶</div></button>
     <div class="soft notifban" id="notifBanner" style="display:none"><b>🔔</b><span>Un petit rappel chaque matin pour ton défi du jour ?</span>
       <button class="candy" id="notifYes">Oui !</button><button class="nb" id="notifNo">Plus tard</button></div>
-    <button class="soft ensbtn" id="ensBtn">👫 Ensemble <span class="notif" id="ensNotif" style="display:none"></span></button>
     <div class="row2b">
       <button class="soft big2" id="dailyBtn"><b>🧩</b><span>Défi du jour<small id="dailySub"></small></span></button>
       <button class="soft big2" id="wheelBtn"><b>🎡</b><span>Roue<small id="wheelSub"></small></span></button>
@@ -638,17 +610,7 @@ body.dark .sw{background:#5a4170}
       <button class="act" id="newBtn" style="--a:#cfe9ff;--b:#7cc4ff;--d:#4c9fe0"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3.5v5h-5"/></svg></span><span id="newLbl">Nouvelle</span></button>
     </div>
   </section>
-
-  <section class="screen hidden" id="spectate">
-    <div class="spechead"><button class="soft iconbtn" id="specBack">←</button><div class="d"><b id="specName">…</b><small id="specDiff"></small></div><span class="live">● LIVE</span></div>
-    <div class="boardzone"><div class="frame" id="specFrame"><div id="specBoard"></div></div></div>
-    <div class="spechint" id="specHintTxt">Touche une case pour envoyer un cœur 💗</div>
-    <div class="spectools"><div class="tsel"><button class="soft sel" id="specHeart">💗 Cœur</button><button class="soft" id="specHint">💡 Indice</button></div></div>
-    <div class="spectools"><button class="candy" id="specCtrlBtn">🎮 Demander à jouer</button></div>
-  </section>
 </div>
-
-<div id="ctrlBanner"></div>
 
 <div class="overlay" id="ov"><div class="modal" id="modal"></div></div>
 
@@ -1111,7 +1073,7 @@ const DIFFS=[{n:5,name:'Facile',c2:'#4fbf8f',c3:'#d7f7e9'},{n:6,name:'Normal',c2
 /* =========================================================
    Apparence : thème, mode nuit, décor
    ========================================================= */
-const SCREENS=['who','admin','splash','menu','levels','shop','game','spectate'];
+const SCREENS=['who','admin','splash','menu','levels','shop','game'];
 function showScreen(id){SCREENS.forEach(s=>$(s).classList.toggle('hidden',s!==id))}
 function go(fn,label){$('wpet').innerHTML=pet(S.pet,'happy');$('wtxt').textContent=label||'';sfx.whoosh();$('wipe').classList.add('on');setTimeout(()=>{fn();setTimeout(()=>$('wipe').classList.remove('on'),60)},440)}
 (function(){const bg=$('bg');
@@ -1544,8 +1506,8 @@ addEventListener('pointerup',()=>endDrag(true));addEventListener('pointercancel'
 board.addEventListener('contextmenu',e=>e.preventDefault());
 $('undoBtn').onclick=()=>{if(over||!hist.length)return;st=hist.pop();lastTap=null;sfx.erase();render()};
 $('clearBtn').onclick=()=>{if(over)return;snap();st=st.map(r=>r.map(v=>v===1?0:v));sfx.erase();render()};
-$('newBtn').onclick=()=>{sfx.start();if(mode==='coop'){endLive('quit');return}mode==='free'?go(()=>startGame(P.n)):go(resetGame)};
-$('backBtn').onclick=()=>{sfx.ui();over=true;clearInterval(timer);clearTimeout(idleT);$('vig').classList.remove('on');if(mode==='coop'){endLive('quit');return}go(()=>{renderMenu();if(mode==='adv'){renderLevels();showScreen('levels')}else showScreen('menu')})};
+$('newBtn').onclick=()=>{sfx.start();mode==='free'?go(()=>startGame(P.n)):go(resetGame)};
+$('backBtn').onclick=()=>{sfx.ui();over=true;clearInterval(timer);clearTimeout(idleT);$('vig').classList.remove('on');go(()=>{renderMenu();if(mode==='adv'){renderLevels();showScreen('levels')}else showScreen('menu')})};
 $('hintBtn').onclick=()=>{if(over)return;const rows=[...Array(P.n).keys()].filter(r=>st[r][P.sol[r]]!==2);if(!rows.length)return;
   const r=mpick(rows),t=tileEl(r,P.sol[r]);
   hints++;STATS.hints++;statSave();anim(t,'hint');setTimeout(()=>t.classList.remove('hint'),3100);
@@ -1560,7 +1522,6 @@ function closeModal(){ov.classList.remove('show')}
 ov.addEventListener('click',e=>{if(e.target===ov&&!modalLock){sfx.ui();closeModal()}});
 const letters=t=>[...t].map((ch,i)=>`<span style="animation-delay:${.15+i*.05}s">${ch===' '?'&nbsp;':esc(ch)}</span>`).join('');
 function win(){
-  if(mode==='coop'){over=true;clearInterval(timer);live&&(live.done=true);coopResult(true);return}
   setTimeout(()=>syncProgress(true),1500);
   over=true;clearInterval(timer);clearTimeout(idleT);$('vig').classList.remove('on');setBuddy('party','happy','On a gagné ! 🎉');
   const s=Math.floor((Date.now()-t0)/1000),adv=mode==='adv',daily=mode==='daily',cls=mode==='classic',k=adv?'lvbest'+curL:daily?'dbest':cls?'cbest'+curTrack.id:'best'+P.n,prev=LS.get(k,null),rec=!prev||s<prev;
@@ -1691,7 +1652,7 @@ function switchPlayer(){try{sessionStorage.removeItem('kd-profile')}catch(e){}sf
 /* =========================================================
    Messages d'Ethan (synchronisés via GitHub)
    ========================================================= */
-const MSG_EMPTY=()=>({config:{},victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[],trolls:[],invites:[]});
+const MSG_EMPTY=()=>({config:{},victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[],trolls:[]});
 let MSG=Object.assign(MSG_EMPTY(),GLS.get('msgcache',{}));
 const isoDay=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function repoInfo(){const c=GLS.get('repo',null);if(c&&c.owner&&c.repo)return c;const h=location.hostname;
@@ -1707,7 +1668,7 @@ async function fetchRemote(auth){
 }
 async function loadMSG(){
   if(GLS.get('token','')){try{const{data}=await fetchRemote(true);MSG=data;GLS.set('msgcache',MSG)}catch(e){}}
-  renderInboxBtn();if(!$('menu').classList.contains('hidden'))checkInbox();if(PROFILE)checkTroll();if(typeof checkInvites==='function')checkInvites();
+  renderInboxBtn();if(!$('menu').classList.contains('hidden'))checkInbox();if(PROFILE)checkTroll();
 }
 async function saveMSG(){
   GLS.set('msgcache',MSG);
@@ -1971,8 +1932,7 @@ const TROLLS=[
   {id:'bug',ico:'💥',name:'Faux bug',desc:'« Erreur : toutes tes fraises ont été supprimées »'},
   {id:'pluie',ico:'🐸',name:'Pluie de grenouilles',desc:"Une avalanche d'emojis envahit l'écran"},
   {id:'fuite',ico:'🏃',name:'Mascotte fugueuse',desc:"Sa mascotte s'enfuit quand elle essaie de la toucher"},
-  {id:'reset',ico:'🗑️',name:'Fausse remise à zéro',desc:'« Progression supprimée… Niveau 1 »'},
-  {id:'oeil',ico:'👁️',name:'Quelqu\'un te regarde',desc:'Un œil géant apparaît : « … te regarde 😏 »'}];
+  {id:'reset',ico:'🗑️',name:'Fausse remise à zéro',desc:'« Progression supprimée… Niveau 1 »'}];
 const vengeanceOn=()=>!(MSG.config&&MSG.config.vengeance===false);
 const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id)&&(!t.date||Date.now()-new Date(t.date)<3*864e5)&&(PROFILE!==ADMIN_PROFILE||vengeanceOn()||!t.de||t.de===S.name));
 let trollT=null;
@@ -2122,9 +2082,6 @@ runTroll=function(type,by){
     setTimeout(()=>{clearInterval(iv);openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Je rigole 😘')}</h2><div class="mbtns"><button class="candy" id="mOk">Grrr 😤</button></div>`,true);$('mOk').onclick=()=>{closeModal();trollReveal(by)}},6500)}
   else if(type==='zoom'){app.style.transition='transform 1.2s cubic-bezier(.3,1.4,.5,1)';app.style.transform='scale(2.6) rotate(-6deg)';tone(200,{dur:1.2,vol:.1,to:1200});
     setTimeout(()=>{app.style.transform='';setTimeout(()=>{app.style.transition='';trollReveal(by)},1300)},8000)}
-  else if(type==='oeil'){const d=overlayDiv('eyeov','<div class="eyewrap"><div class="eye"><div class="iris"></div></div></div>');tone(200,{dur:2,vol:.1,to:120,attack:.5});tone(210,{dur:2,type:'triangle',vol:.05,to:110,attack:.6});
-    setTimeout(()=>{const t=document.createElement('div');t.className='eyetxt';t.innerHTML=`${esc(by||fromName())} te regarde… 😏`;d.appendChild(t)},900);
-    setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),400);trollReveal(by)},3200)}
   else runTroll1(type,by);
 };
 
@@ -2203,184 +2160,6 @@ function trollBanner(by){
   b.querySelector('[data-a=yes]').onclick=()=>{sfx.ui();close();showRevenge()};
   setTimeout(close,14000);
 }
-
-/* =========================================================
-   Ensemble : regarder, jouer à deux, passer la main
-   (transport via le dépôt privé GitHub, en quasi-direct ~3 s)
-   ========================================================= */
-const L_STREAM='live/stream.json',L_INPUT='live/input.json',L_COOP=p=>`live/coop-${p}.json`;
-let live=null,liveTimer=null,liveBusy=false;const answeredInv=new Set();
-const otherP=()=>PROFILES.find(p=>p.id!==PROFILE);
-const liveOK=()=>PROFILE&&repoInfo()&&GLS.get('token','');
-function startLiveLoop(){if(liveTimer)return;liveTimer=setInterval(liveTick,2500);liveTick()}
-function stopLiveLoop(){clearInterval(liveTimer);liveTimer=null}
-function flat(g){return g.map(r=>r.join('')).join(',')}
-function unflat(s){return s.split(',').map(r=>[...r].map(Number))}
-
-function showEnsemble(){
-  const o=otherP();
-  if(!liveOK()){openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters('Ensemble')}</h2><p style="font-weight:600;color:var(--plum2);margin:6px 0 14px">Il faut relier le jeu à GitHub (⚙️ Connexion) sur les deux téléphones pour jouer ensemble.</p><div class="mbtns"><button class="candy" id="mOk">OK</button></div>`);modal.classList.add('nopet');$('mOk').onclick=()=>{sfx.ui();closeModal()};return}
-  openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Ensemble')}</h2>
-    <p class="small" style="margin:2px 0 12px">${esc(o.name)} doit avoir le jeu ouvert. Petit délai de quelques secondes, c'est normal 💞</p>
-    <div style="display:grid;gap:9px;margin-bottom:12px">
-      <button class="candy" id="eWatch" style="padding:12px;text-align:left;--a:#a8d4ff;--b:#4c9fe0;--d:#3b7fc0">👀 <b style="font-size:17px">Regarder ${esc(o.name)} jouer</b><br><small style="font-weight:600;opacity:.95">Tu vois sa partie et tu peux lui envoyer des cœurs</small></button>
-      <button class="candy" id="eCoop" style="padding:12px;text-align:left;--a:#c8f0b8;--b:#5fbf4f;--d:#4a9c3c">👫 <b style="font-size:17px">Jouer la même grille</b><br><small style="font-weight:600;opacity:.95">Même puzzle, chacun son tour de main, le plus rapide gagne</small></button>
-    </div>
-    <div class="mbtns"><button class="soft" id="mOk">Fermer</button></div>`);
-  modal.classList.add('nopet');$('mOk').onclick=()=>{sfx.ui();closeModal()};
-  $('eWatch').onclick=()=>{sfx.start();sendInvite('watch')};
-  $('eCoop').onclick=()=>{sfx.start();sendInvite('coop')};
-}
-async function sendInvite(mode){
-  const o=otherP(),sid=uid();
-  live={sid,mode,role:mode==='coop'?'coop':'watcher',peer:o,pending:true,t0:Date.now(),seen:new Set(),queue:[],control:null};
-  openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('En attente…')}</h2><p style="font-weight:600;color:var(--plum2);margin:6px 0 14px">On attend que ${esc(o.name)} accepte sur son téléphone 📲</p><div class="mbtns"><button class="soft" id="eCancel">Annuler</button></div>`,true);
-  modal.classList.add('nopet');$('eCancel').onclick=()=>{sfx.ui();endLive('cancel')};
-  try{const{data,sha}=await fetchRemote(true);data.invites=[...(data.invites||[]).slice(-6),{id:sid,de:PROFILE,deNom:S.name,pour:o.id,mode,ts:new Date().toISOString()}];
-    await ghWrite('messages.json',data,sha,'🎮 invitation '+mode);MSG=data;GLS.set('msgcache',MSG)}catch(e){endLive('err');toast('Oups : '+e.message);return}
-  if(mode==='coop'){await ghWrite(L_COOP(PROFILE),{sid,status:'wait'},null,'coop').catch(()=>{})}
-  startLiveLoop();
-}
-function checkInvites(){
-  if(live||!liveOK())return;
-  const inv=(MSG.invites||[]).find(i=>i.pour===PROFILE&&!answeredInv.has(i.id)&&Date.now()-new Date(i.ts)<50000);
-  if(!inv)return;answeredInv.add(inv.id);
-  sfx.pet(5);buzz([40,60,40]);
-  openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters(inv.mode==='coop'?'Jouer ensemble ?':'Il veut regarder')}</h2>
-    <p style="font-weight:600;color:var(--plum2);margin:6px 0 14px">${esc(inv.deNom||otherP().name)} ${inv.mode==='coop'?'t\'invite à jouer la même grille 👫':'aimerait regarder ta partie 👀'}</p>
-    <div class="mbtns"><button class="soft" id="iNo">Non</button><button class="candy" id="iYes">Oui !</button></div>`,true);
-  $('iNo').onclick=async()=>{sfx.ui();closeModal();try{await ghWrite(L_STREAM,{sid:inv.id,status:'declined'},(await ghFile(L_STREAM).catch(()=>({}))).sha,'refus').catch(()=>{})}catch(e){}};
-  $('iYes').onclick=()=>{sfx.start();closeModal();acceptInvite(inv)};
-}
-async function acceptInvite(inv){
-  const o=otherP();
-  if(inv.mode==='coop'){live={sid:inv.id,mode:'coop',role:'coop',peer:o,seen:new Set()};startLiveLoop();startCoop(inv.id);return}
-  live={sid:inv.id,mode:'watch',role:'host',peer:o,seen:new Set(),control:null,pendingCtrl:false};
-  startLiveLoop();toast(`${o.name} regarde ta partie 👀`);
-  if($('game').classList.contains('hidden')){openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('À toi !')}</h2><p style="font-weight:600;color:var(--plum2);margin:6px 0 14px">Lance une partie, ${esc(o.name)} te regarde 👀</p><div class="mbtns"><button class="candy" id="mOk">C'est parti</button></div>`);modal.classList.add('nopet');$('mOk').onclick=()=>{sfx.ui();closeModal()}}
-}
-function endLive(why){
-  if(live&&live.role==='watcher'&&!live.pending){/* leaving spectate */}
-  const wasHost=live&&live.role==='host';
-  if(liveOK()&&live){const sid=live.sid;ghFile(L_STREAM).then(({sha})=>ghWrite(L_STREAM,{sid,status:'ended'},sha,'fin').catch(()=>{})).catch(()=>{})}
-  live=null;stopLiveLoop();closeModal();
-  if(!$('spectate').classList.contains('hidden')){showScreen('menu');renderMenu()}
-  if(wasHost){$('ctrlBanner').classList.remove('show')}
-}
-
-/* ---------- La boucle (lecture/écriture GitHub) ---------- */
-async function liveTick(){
-  if(!live||liveBusy||!liveOK())return;liveBusy=true;
-  try{
-    if(live.role==='host')await tickHost();
-    else if(live.role==='watcher')await tickWatcher();
-    else if(live.role==='coop')await tickCoop();
-  }catch(e){}
-  liveBusy=false;
-}
-async function tickHost(){
-  const inG=!$('game').classList.contains('hidden')&&P;
-  const body={sid:live.sid,status:'live',host:PROFILE,hostNom:S.name,watcher:live.peer.id,mode:'watch',control:live.control,
-    pet:S.pet,eq:S.eq,pal:activePalette(),diff:inG?diffName:null,hearts,ts:Date.now(),
-    board:inG?{n:P.n,g:flat(P.g),st:flat(st)}:null};
-  let sha=null;try{sha=(await ghFile(L_STREAM)).sha}catch(e){}
-  await ghWrite(L_STREAM,body,sha,'stream');
-  try{const{data}=await ghFile(L_INPUT);if(data&&data.sid===live.sid)applyInput(data)}catch(e){}
-}
-function applyInput(d){
-  (d.drops||[]).forEach(dp=>{if(live.seen.has(dp.id)||!P)return;live.seen.add(dp.id);
-    const t=tileEl(dp.r,dp.c);if(!t)return;const b=t.getBoundingClientRect(),x=b.left+b.width/2,y=b.top+b.height/2;
-    if(dp.kind==='hint'){anim(t,'hint');setTimeout(()=>t.classList.remove('hint'),2000);burst(x,y,{n:12,kinds:['star'],colors:['#ffc94d','#fff3b0'],speed:3,size:b.width/5})}
-    else{burst(x,y,{n:12,kinds:['heart'],speed:4,size:b.width/5});floatText(x,y-b.width*.3,`${esc(live.peer.name)} 💗`,'#ff5d8f',18)}
-    sfx.pet(4)});
-  if(d.reqControl&&!live.control&&!live.pendingCtrl){live.pendingCtrl=true;askControl(d)}
-  if(d.endControl&&live.control){live.control=null;$('ctrlBanner').classList.remove('show');toast(`${live.peer.name} te rend la main`)}
-  (d.taps||[]).forEach(tp=>{if(live.seen.has(tp.id)||live.control!==live.peer.id||!P||over)return;live.seen.add(tp.id);remoteTap(tp.r,tp.c,tp.kind)});
-  if(d.end){endLive('peer')}
-}
-function askControl(d){
-  openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Il veut jouer')}</h2><p style="font-weight:600;color:var(--plum2);margin:6px 0 14px">${esc(live.peer.name)} veut jouer sur ta grille 🎮 Tu lui passes la main ?</p><div class="mbtns"><button class="soft" id="cNo">Non</button><button class="candy" id="cYes">Oui 🎮</button></div>`,true);
-  $('cNo').onclick=()=>{sfx.ui();live.pendingCtrl=false;closeModal()};
-  $('cYes').onclick=()=>{sfx.start();live.pendingCtrl=false;live.control=live.peer.id;closeModal();
-    $('ctrlBanner').innerHTML=`🎮 ${esc(live.peer.name)} joue sur ta grille — <b id="ctrlStop">reprendre la main</b>`;$('ctrlBanner').classList.add('show');
-    $('ctrlStop').onclick=()=>{live.control=null;$('ctrlBanner').classList.remove('show')}};
-}
-function remoteTap(r,c,kind){ // applique un geste du partenaire sur MA grille
-  if(st[r][c]===2&&kind!=='bunny')return;
-  if(kind==='bunny'){lastTap=null;placePet(r,c)}
-  else{snap();st[r][c]=st[r][c]===1?0:1;sfx.x();render()}
-}
-async function tickWatcher(){
-  let s;try{s=(await ghFile(L_STREAM)).data}catch(e){return}
-  if(!s||s.sid!==live.sid){if(live.pending&&Date.now()-live.t0>45000)endLive('timeout');return}
-  if(s.status==='declined'){endLive();toast(`${live.peer.name} a refusé 🥺`);return}
-  if(s.status==='ended'){endLive();toast('Partie terminée');return}
-  if(live.pending){live.pending=false;closeModal();showScreen('spectate')}
-  live.control=s.control;renderSpectate(s);
-  if(live.queue.length||live.dirty){const body={sid:live.sid,from:PROFILE,ts:Date.now(),drops:live.queue.slice(),
-    reqControl:live.reqControl||false,endControl:live.endControl||false,taps:(live.taps||[]).slice()};
-    live.queue=[];live.taps=[];live.dirty=false;live.endControl=false;
-    let sha=null;try{sha=(await ghFile(L_INPUT)).sha}catch(e){}await ghWrite(L_INPUT,body,sha,'input')}
-}
-function renderSpectate(s){
-  $('specName').textContent=s.hostNom||live.peer.name;$('specDiff').textContent=s.diff||'dans le menu…';
-  const haveCtrl=s.control===PROFILE;$('spectate').classList.toggle('hasctrl',haveCtrl);
-  $('specCtrlBtn').textContent=haveCtrl?'✋ Rendre la main':'🎮 Demander à jouer';
-  const b=s.board;const bd=$('specBoard');
-  if(!b){bd.innerHTML='<div class="specwait">💤 '+esc(s.hostNom||'')+' n\'a pas encore lancé de partie…</div>';return}
-  const n=b.n,g=unflat(b.g),stt=unflat(b.st),pal=s.pal||activePalette();
-  if(bd.dataset.n!=n+'_'+live.sid){bd.dataset.n=n+'_'+live.sid;bd.style.gridTemplateColumns=`repeat(${n},1fr)`;bd.innerHTML='';
-    for(let i=0;i<n*n;i++){const c=document.createElement('div');c.className='scell';c.dataset.i=i;bd.appendChild(c)}}
-  for(let r=0;r<n;r++)for(let c=0;c<n;c++){const i=r*n+c,el=bd.children[i],v=stt[r][c],want=v+'_'+(g[r][c]);
-    el.style.background=pal[g[r][c]%pal.length];
-    if(el.dataset.v!==want){el.dataset.v=want;el.innerHTML=v===2?`<div class="sbw">${pet(s.pet,'normal',s.eq||NOEQ)}</div>`:v===1?'<span class="sx">✕</span>':''}}
-}
-function specTap(i){
-  if(!live||live.role!=='watcher')return;const n=+$('specBoard').dataset.n.split('_')[0],r=Math.floor(i/n),c=i%n;
-  const b=$('specBoard').children[i].getBoundingClientRect();
-  if(live.control===PROFILE){live.taps=live.taps||[];live.taps.push({id:uid(),r,c,kind:'bunny'});live.dirty=true;
-    burst(b.left+b.width/2,b.top+b.height/2,{n:8,kinds:['star'],speed:3,size:7});sfx.ui()}
-  else{live.queue.push({id:uid(),r,c,kind:live.heartMode==='hint'?'hint':'heart'});live.dirty=true;
-    burst(b.left+b.width/2,b.top+b.height/2,{n:10,kinds:[live.heartMode==='hint'?'star':'heart'],speed:4,size:8});sfx.pet(3)}
-}
-
-/* ---------- Co-op : même grille, course à deux ---------- */
-function coopPuzzle(sid){R=seeded(hashStr('coop#'+sid));const n=[6,7,7,8][hashStr(sid)%4];let p=null;while(!p)p=generate(n);R=Math.random;return p}
-function startCoop(sid){mode='coop';P=coopPuzzle(sid);curTrack=null;diffName='👫 Duo';$('newLbl').textContent='Quitter';live.done=false;live.peerDone=null;live.peerCnt=0;
-  showScreen('game');resetGame();setTimeout(()=>{const b=$('frame').getBoundingClientRect();floatText(b.left+b.width/2,b.top+b.height/2,`👫 Duo avec ${esc(live.peer.name)}`,'#5fbf4f',28)},300)}
-async function tickCoop(){
-  if(mode!=='coop'||!P){ // inviteur : on attend que l'autre accepte, puis on lance la même grille
-    try{const{data}=await ghFile(L_COOP(live.peer.id));if(data&&data.sid===live.sid){closeModal();startCoop(live.sid)}}catch(e){}
-    return;
-  }
-  const mine=st.flat().filter(v=>v===2).length;
-  let sha=null;try{sha=(await ghFile(L_COOP(PROFILE))).sha}catch(e){}
-  await ghWrite(L_COOP(PROFILE),{sid:live.sid,cnt:mine,done:!!live.done,st:flat(st),ts:Date.now()},sha,'coop');
-  try{const{data}=await ghFile(L_COOP(live.peer.id));if(data&&data.sid===live.sid){live.peerCnt=data.cnt;showPeerProgress(data);
-    if(data.done&&!live.done&&!live.lostShown){live.lostShown=true;coopResult(false)}}}catch(e){}
-}
-function showPeerProgress(d){let el=$('coopHud');if(!el){el=document.createElement('div');el.id='coopHud';el.className='coophud';$('game').appendChild(el)}
-  el.innerHTML=`${pet(live.peer.id==='ethan'?'cat':'bunny','happy')}<b>${esc(live.peer.name)}</b> ${d.cnt||0}/${P.n} 🐰`}
-
-function coopResult(won){
-  const peer=live?live.peer.name:'';const hud=$('coopHud');if(hud)hud.remove();
-  sfx.win();if(won)confetti();
-  openModal(`<div class="mtop"><div class="rays"></div>${pet(S.pet,won?'happy':'sad')}</div>
-    <h2>${letters(won?'Gagné ! 🏆':'Trop tard… 😅')}</h2>
-    <p style="font-weight:600;color:var(--plum2);margin:4px 0 14px">${won?`Tu as fini avant ${esc(peer)} ! 💪`:`${esc(peer)} a fini la grille avant toi 🐰`}</p>
-    <div class="mbtns"><button class="soft" id="cMenu">Menu</button><button class="candy" id="cAgain">Rejouer 👫</button></div>`,true);
-  $('cMenu').onclick=()=>{sfx.ui();endLive('coopend')};
-  $('cAgain').onclick=()=>{sfx.start();const o=live?live.peer:otherP();closeModal();endLive('coopend');setTimeout(()=>sendInvite('coop'),300)};
-}
-/* ---------- Boutons spectateur ---------- */
-$('specBack').onclick=()=>{sfx.ui();endLive('back')};
-$('specHeart').onclick=()=>{live.heartMode='heart';$('specHeart').classList.add('sel');$('specHint').classList.remove('sel')};
-$('specHint').onclick=()=>{live.heartMode='hint';$('specHint').classList.add('sel');$('specHeart').classList.remove('sel')};
-$('specCtrlBtn').onclick=()=>{if(!live)return;if(live.control===PROFILE){live.endControl=true;live.dirty=true;toast('Tu rends la main')}else{live.reqControl=true;live.dirty=true;toast('Demande envoyée 🎮');setTimeout(()=>{live.reqControl=false},6000)}};
-$('specBoard').addEventListener('pointerdown',e=>{const c=e.target.closest('.scell');if(c)specTap(+c.dataset.i)});
-
-$('ensBtn').onclick=()=>{sfx.ui();showEnsemble()};
-
 /* =========================================================
    Notifications (rappel du défi + surprises d'Ethan)
    ========================================================= */
@@ -2430,7 +2209,7 @@ setTimeout(()=>{if(PROFILE&&LS.get('notifOn',false)&&pushOK()&&isApp()&&Notifica
 
 $('inboxBtn').onclick=()=>{sfx.ui();showInbox()};
 // Vérifie les nouveautés pendant que le jeu est ouvert (trolls, mots, cadeaux)
-setInterval(()=>{if(PROFILE&&document.visibilityState==='visible')loadMSG()},6000);
+setInterval(()=>{if(PROFILE&&document.visibilityState==='visible')loadMSG()},8000);
 document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('bgpause',document.visibilityState!=='visible');if(PROFILE&&document.visibilityState==='visible')loadMSG()});
 
 /* démarrage */
