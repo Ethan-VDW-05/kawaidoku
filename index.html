@@ -1589,7 +1589,8 @@ function pendingItems(){
 }
 function renderInboxBtn(){const b=$('inboxBtn');if(!b)return;let n=b.querySelector('.notif');const on=pendingItems().length>0;
   if(on&&!n){n=document.createElement('span');n.className='notif';b.appendChild(n)}if(!on&&n)n.remove()}
-function checkInbox(){if(ov.classList.contains('show')||$('menu').classList.contains('hidden'))return;const p=pendingItems()[0];if(p)showItem(p)}
+function checkInbox(){if(ov.classList.contains('show')||$('menu').classList.contains('hidden'))return;const p=pendingItems()[0];if(p){showItem(p);return}
+  if(typeof shouldAskNotif==='function'&&shouldAskNotif())showNotifAsk()}
 const fromName=()=>{const o=PROFILES.find(p=>p.id!==PROFILE);return o?o.name:''};
 const deN=n=>/^[aeiouyhéèêàâîôû]/i.test(n)?"d'"+n:'de '+n;
 function paper(title,txt){return `<div class="paper"><div class="ptitle">${esc(title)}</div><div class="ptext">${esc(txt).replace(/\n/g,'<br>')}</div><div class="psign">— ${esc(fromName())} 💗</div></div>`}
@@ -1768,8 +1769,19 @@ async function enableReminders(){
 }
 async function setDaily(on){try{await saveSub(on);LS.set('notifOn',on);toast(on?'🔔 Rappel quotidien activé':'🔕 Rappel quotidien coupé')}catch(e){toast('Oups, '+e.message)}}
 function renderNotifBanner(){const b=$('notifBanner');if(!b)return;
-  const show=PROFILE&&pushOK()&&isApp()&&!LS.get('notifAsked',false)&&!LS.get('notifOn',false)&&!!GLS.get('token','');b.style.display=show?'':'none'}
+  b.style.display='none'}
 $('notifYes').onclick=()=>{sfx.ui();enableReminders()};
+// Fenêtre au lancement (iOS exige un appui sur un bouton pour afficher sa demande d'autorisation)
+let notifAskedThisLaunch=false;
+function shouldAskNotif(){return !notifAskedThisLaunch&&PROFILE&&pushOK()&&isApp()&&!!GLS.get('token','')&&!LS.get('notifOn',false)&&Notification.permission!=='denied'}
+function showNotifAsk(){
+  notifAskedThisLaunch=true;
+  openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Notifications')}</h2>
+    <p style="font-weight:600;color:var(--plum2);margin:4px 0 16px">Active les notifications pour recevoir un petit rappel chaque matin pour ton défi du jour 🧩🔔</p>
+    <div class="mbtns"><button class="soft" id="naNo">Plus tard</button><button class="candy" id="naYes">Activer 🔔</button></div>`,true);
+  $('naNo').onclick=()=>{sfx.ui();closeModal()};
+  $('naYes').onclick=()=>{closeModal();enableReminders()};
+}
 $('notifNo').onclick=()=>{sfx.ui();LS.set('notifAsked',true);renderNotifBanner()};
 // Si les notifs sont déjà autorisées, on rafraîchit l'abonnement de temps en temps (iOS peut le changer)
 setTimeout(()=>{if(PROFILE&&LS.get('notifOn',false)&&pushOK()&&isApp()&&Notification.permission==='granted'&&Date.now()-LS.get('subRefresh',0)>7*864e5){
