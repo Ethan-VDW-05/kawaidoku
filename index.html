@@ -1974,6 +1974,9 @@ setTimeout(()=>{if(PROFILE&&LS.get('notifOn',false)&&pushOK()&&isApp()&&Notifica
   saveSub(true).then(()=>LS.set('subRefresh',Date.now())).catch(()=>{})}},4000);
 
 $('inboxBtn').onclick=()=>{sfx.ui();showInbox()};
+// Vérifie les nouveautés pendant que le jeu est ouvert (trolls, mots, cadeaux)
+setInterval(()=>{if(PROFILE&&document.visibilityState==='visible')loadMSG()},20000);
+document.addEventListener('visibilitychange',()=>{if(PROFILE&&document.visibilityState==='visible')loadMSG()});
 
 /* démarrage */
 applyLook();applyTod();setWeather();
