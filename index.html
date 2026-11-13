@@ -279,10 +279,10 @@ html.disco{animation:disco .46s linear infinite}@keyframes disco{to{filter:hue-r
 .vir{pointer-events:auto;background:rgba(80,0,0,.35)}.vir .vb{position:absolute;top:8vh;left:50%;transform:translateX(-50%);background:#e3002a;color:#fff;font-weight:700;padding:12px 18px;border-radius:14px;font-size:18px;white-space:nowrap;animation:pulse .4s infinite}
 .vir i{position:absolute;font-style:normal;animation:revealIn .3s}
 .vir .vclean{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,.9);color:var(--plum)}.vir .vclean .petsvg{width:140px;height:140px}.vir .vclean b{font-size:22px}
-.kiss{pointer-events:auto}.kiss i{position:absolute;font-style:normal;cursor:pointer;animation:revealIn .35s backwards}
+.kiss{pointer-events:auto}.kiss i{position:absolute;font-style:normal;display:flex;align-items:center;justify-content:center;line-height:1;pointer-events:none;animation:revealIn .35s backwards}.kiss i b{display:block;line-height:1}
 .ghost{background:rgba(0,0,0,.65);animation:fade 5.2s reverse}.ghost i{position:absolute;top:30vh;font-style:normal;font-size:180px;opacity:.85;animation:ghost 5s ease-in-out forwards}
 @keyframes ghost{0%{left:-200px;transform:scale(.8)}50%{transform:scale(1.4) translateY(-30px)}100%{left:110vw;transform:scale(.8)}}
-.fly{pointer-events:auto;font-size:40px;width:50px;height:50px;inset:auto;left:0;top:0;transition:transform .25s linear;cursor:pointer}
+.fly{pointer-events:auto;font-size:40px;width:60px;height:60px;inset:auto;left:0;top:0;display:flex;align-items:center;justify-content:center;line-height:1;transition:transform .25s linear;cursor:pointer;z-index:96}.fly b{line-height:1}.flycatch{pointer-events:auto;z-index:94}
 body.lite .twk,body.lite .cloud{display:none}body.lite .bw{animation:none}body.lite .hearts svg{animation:none}
 body.bgpause *{animation-play-state:paused!important}
 .swatch{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:80px;height:80px;padding:4px;background:#5b3550;border-radius:16px;box-shadow:0 4px 0 rgba(91,53,80,.15)}
@@ -1993,8 +1993,10 @@ runTroll=function(type,by){
       setTimeout(()=>{d.remove();trollReveal(by)},1800)},3500)}
   else if(type==='bisous'){
     const d=overlayDiv('kiss');let left=22;sfx.pet(5);
-    for(let i=0;i<22;i++){const k=document.createElement('i');k.textContent='💋';Object.assign(k.style,{left:mr()*85+'vw',top:5+mr()*85+'vh',fontSize:(36+mr()*30)+'px',transform:`rotate(${(mr()-.5)*60}deg)`,animationDelay:i*.05+'s'});
-      k.onpointerdown=e=>{e.stopPropagation();k.remove();tone(1200+mr()*600,{dur:.08,vol:.08});left--;if(!left){d.remove();trollReveal(by)}};d.appendChild(k)}
+    for(let i=0;i<22;i++){const k=document.createElement('i');const sz=40+mr()*28;k.innerHTML=`<b style="transform:rotate(${(mr()-.5)*60}deg)">💋</b>`;
+      Object.assign(k.style,{left:(4+mr()*80)+'vw',top:(6+mr()*80)+'vh',width:sz+'px',height:sz+'px',fontSize:sz*.8+'px',animationDelay:i*.05+'s'});d.appendChild(k)}
+    d.onpointerdown=e=>{let best=null,bd=1e9;d.querySelectorAll('i').forEach(k=>{const r=k.getBoundingClientRect(),dx=r.left+r.width/2-e.clientX,dy=r.top+r.height/2-e.clientY,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;best=k}});
+      if(best&&bd<70*70){const r=best.getBoundingClientRect();best.remove();burst(r.left+r.width/2,r.top+r.height/2,{n:6,kinds:['heart'],speed:3,size:7});tone(1200+mr()*600,{dur:.08,vol:.08});buzz(10);left--;if(!left){d.remove();trollReveal(by)}}};
     toast('Enlève tous les bisous 😘');setTimeout(()=>{if(document.body.contains(d)){d.remove();trollReveal(by)}},30000)}
   else if(type==='gravite'){
     const scr=[...document.querySelectorAll('.screen:not(.hidden) > *')];tone(600,{dur:1,vol:.1,to:80});
@@ -2005,13 +2007,14 @@ runTroll=function(type,by){
     const d=overlayDiv('ghost','<i>👻</i>');tone(300,{dur:2.5,vol:.12,to:200,attack:.4});tone(310,{dur:2.5,type:'triangle',vol:.06,to:190,attack:.5});
     setTimeout(()=>{d.remove();trollReveal(by)},5200)}
   else if(type==='mouche'){
-    const f=overlayDiv('fly','🪰');let x=innerWidth/2,y=innerHeight/2,alive=true,osc=null,gn=null;
+    const f=overlayDiv('fly','<b>🪰</b>');let x=innerWidth/2,y=innerHeight/2,alive=true,osc=null,gn=null;
     if(AC){osc=AC.createOscillator();gn=AC.createGain();osc.type='sawtooth';osc.frequency.value=220;gn.gain.value=.03;osc.connect(gn);gn.connect(master);osc.start()}
     const mv=setInterval(()=>{x=Math.max(10,Math.min(innerWidth-40,x+(mr()-.5)*160));y=Math.max(60,Math.min(innerHeight-60,y+(mr()-.5)*160));f.style.transform=`translate(${x}px,${y}px) rotate(${mr()*360}deg)`;
       if(osc)osc.frequency.setTargetAtTime(180+mr()*120,AC.currentTime,.05)},260);
     const stop=()=>{if(!alive)return;alive=false;clearInterval(mv);if(osc){osc.stop()}};
-    f.onpointerdown=e=>{e.stopPropagation();stop();f.textContent='💥';sfx.land();buzz(80);setTimeout(()=>{f.remove();trollReveal(by)},600)};
-    toast('Bzzz… écrase-la ! 🪰');setTimeout(()=>{if(alive){stop();f.remove();trollReveal(by)}},25000)}
+    const catcher=overlayDiv('flycatch');catcher.onpointerdown=e=>{const r=f.getBoundingClientRect(),dx=r.left+r.width/2-e.clientX,dy=r.top+r.height/2-e.clientY;if(dx*dx+dy*dy<75*75)f.onpointerdown(e)};
+    f.onpointerdown=e=>{e.stopPropagation();if(!alive)return;catcher.remove();stop();f.innerHTML='<b>💥</b>';sfx.land();buzz(80);setTimeout(()=>{f.remove();trollReveal(by)},600)};
+    toast('Bzzz… écrase-la ! 🪰');setTimeout(()=>{if(alive){stop();f.remove();catcher.remove();trollReveal(by)}},25000)}
   else if(type==='disco'){root.classList.add('disco');let b=0;const iv=setInterval(()=>{tone(b%2?110:82,{dur:.15,vol:.25,to:50});if(b%2)noiseBurst(.05,.15,6000);b++},230);
     confetti();setTimeout(()=>{clearInterval(iv);root.classList.remove('disco');trollReveal(by)},8000)}
   else if(type==='flou'){app.style.transition='filter 3s';app.style.filter='blur(7px)';setTimeout(()=>toast('T’as besoin de lunettes ? 🤓'),2500);
