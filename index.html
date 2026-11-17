@@ -361,6 +361,13 @@ body.bgpause *{animation-play-state:paused!important}
 .tbanner.in{transform:translateY(0)}.tbanner .tbp{width:42px;height:42px;flex-shrink:0}.tbanner .tbp .petsvg{width:100%;height:100%}
 .tbanner .tbt{flex:1;min-width:0;text-align:left}.tbanner .tbt b{display:block;font-size:13.5px;line-height:1.2}.tbanner .tbt small{font-size:12px;opacity:.7}
 .tbanner button{border-radius:13px;padding:8px 9px;font-size:12.5px;flex-shrink:0}
+.whocard{position:relative}
+.wadd{justify-content:center!important;border:2px dashed var(--inputbd);background:var(--card)}
+.waddplus{font-size:46px;color:var(--pink);line-height:1;font-weight:700}
+.wedit{position:absolute;top:6px;right:9px;font-style:normal;font-size:16px;opacity:.55;padding:3px}
+#whoTitle{cursor:pointer}
+.cppet{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0 6px}
+.cppet .bigpet{width:116px}.cppet .bigpet .petsvg{width:100%;height:100%;animation:bob 2.4s ease-in-out infinite}
 .swatch{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:80px;height:80px;padding:4px;background:#5b3550;border-radius:16px;box-shadow:0 4px 0 rgba(91,53,80,.15)}
 .swatch i{border-radius:6px;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}
 
@@ -539,9 +546,9 @@ body.dark .sw{background:#5a4170}
 <div class="app">
   <section class="screen hidden" id="who">
     <div class="logo"><h1 class="ttl"></h1></div>
-    <h2>Qui joue ?</h2>
+    <h2 id="whoTitle">Qui joue ?</h2>
     <div class="whogrid" id="whoList"></div>
-    <p class="small" style="text-align:center">Chacun garde sa propre progression 💞</p>
+    <p class="small" id="whoSub" style="text-align:center">Chacun garde sa propre progression</p>
   </section>
 
   <section class="screen hidden" id="admin">
@@ -642,11 +649,19 @@ body.dark .sw{background:#5a4170}
 /* =========================================================
    Sauvegarde
    ========================================================= */
-const PROFILES=[{id:'noellya',name:'Noëllya',def:'bunny'},{id:'ethan',name:'Ethan',def:'cat'}];
-let PROFILE=null;try{PROFILE=sessionStorage.getItem('kd-profile')}catch(e){}
-if(!PROFILES.some(p=>p.id===PROFILE))PROFILE=null;
-const PROF=PROFILES.find(p=>p.id===PROFILE)||{name:'',def:'bunny'};
 const GLS={get(k,d){try{const v=localStorage.getItem('kd-g-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('kd-g-'+k,JSON.stringify(v))}catch(e){}}};
+const SPECIAL_PROFILES=[{id:'noellya',name:'Noëllya',def:'bunny'},{id:'ethan',name:'Ethan',def:'cat'}];
+// Les profils du couple (et l'admin, les messages, les trolls, la sauvegarde partagée)
+// n'apparaissent qu'une fois le "mode couple" déverrouillé par le code secret.
+try{if(!GLS.get('couple',false)&&(GLS.get('token','')||Object.keys(localStorage).some(k=>/^kd-(ethan|noellya)-/.test(k))))GLS.set('couple',true)}catch(e){}
+const coupleOn=()=>GLS.get('couple',false);
+const localProfiles=()=>GLS.get('profiles',[]);
+const pickerProfiles=()=>(coupleOn()?SPECIAL_PROFILES:[]).concat(localProfiles());
+const PROFILES=SPECIAL_PROFILES;
+let PROFILE=null;try{PROFILE=sessionStorage.getItem('kd-profile')}catch(e){}
+if(!pickerProfiles().some(p=>p.id===PROFILE))PROFILE=null;
+const PROF=pickerProfiles().find(p=>p.id===PROFILE)||SPECIAL_PROFILES.find(p=>p.id===PROFILE)||{name:'Joueur',def:'bunny'};
+const SPECIAL=PROFILE==='ethan'||PROFILE==='noellya';
 const LS={get(k,d){try{const v=localStorage.getItem('kd-'+(PROFILE||'_')+'-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
           set(k,v){if(!PROFILE)return;try{localStorage.setItem('kd-'+PROFILE+'-'+k,JSON.stringify(v));if(window.__cloudReady&&!['progSync','subRefresh','notifAsked','notifOn','cloudPush'].includes(k)){localStorage.setItem('kd-'+PROFILE+'-_mod',String(Date.now()));if(typeof scheduleCloud==='function')scheduleCloud(k==='seenMsg')}}catch(e){}}};
 const S={sound:LS.get('sound',true),music:LS.get('music',false),auto:LS.get('auto',true),
@@ -1256,7 +1271,7 @@ function applyLook(){
     P.cmap=regionColors(P.n,P.g,pal);for(let r=0;r<P.n;r++)for(let c=0;c<P.n;c++){tileEl(r,c).style.backgroundColor=P.cmap[P.g[r][c]];tileEl(r,c).style.color=P.cmap[P.g[r][c]]}}
 }
 document.querySelectorAll('.ttl').forEach(h=>h.innerHTML=[...'Kawaidoku'].map((ch,i)=>`<span style="animation-delay:${i*.09}s">${ch}</span>`).join(''));
-const subTxt=()=>S.name?`Pour ${S.name} 💖`:'Le puzzle le plus mignon du monde';
+const subTxt=()=>S.name?(SPECIAL?`Pour ${S.name} 💖`:`Salut ${S.name} ! ✨`):'Le puzzle le plus mignon du monde';
 
 /* ---------- Splash ---------- */
 $('splash').addEventListener('click',()=>{ensureAudio();sfx.start();burst(innerWidth/2,innerHeight/2,{n:26,kinds:['heart','star'],speed:9,size:12});
@@ -1283,7 +1298,7 @@ function renderMenu(){
   $('gSnd').textContent=S.sound?'🔊':'🔇';
   const w=LS.get('wins',0);$('stats').textContent=w?`🏆 ${w} grille${w>1?'s':''} résolue${w>1?'s':''}`:'';
   document.querySelectorAll('.sub').forEach(e=>e.textContent=subTxt());
-  {const sb=document.querySelector('#menu .sub');sb.classList.add('subbtn');sb.innerHTML=`Pour ${esc(S.name)} 💖 <small>changer</small>`;sb.onclick=()=>{sfx.ui();switchPlayer()}}
+  {const sb=document.querySelector('#menu .sub');sb.classList.add('subbtn');sb.innerHTML=`${SPECIAL?'Pour ':''}${esc(S.name)} ${SPECIAL?'💖 ':''}<small>changer</small>`;sb.onclick=()=>{sfx.ui();switchPlayer()}}
   renderInboxBtn();if(typeof renderNotifBanner==='function')renderNotifBanner();setTimeout(checkInbox,700);
   if(typeof syncProgress==='function'){syncProgress();checkTroll()}
   renderDaily();renderEgg();{const b=$('shopBtn');let n=b.querySelector('.notif');const on=claimable();if(on&&!n){n=document.createElement('span');n.className='notif';b.appendChild(n)}if(!on&&n)n.remove()}$('maraSub').textContent=`Niveau ${clsLvl()} · difficulté surprise 🎲`;const u=unlocked();$('advSub').textContent=`Niveau ${u} · ${bandOf(u).name}`;renderAutoBtn();
@@ -1752,7 +1767,7 @@ function swRow(key,label,sub){return `<div class="setrow"><div>${label}${sub?`<s
 function showSettings(){
   openModal(`<h2>${letters('Réglages')}</h2>
     ${swRow('sound','🔊 Sons')}${swRow('music','🎵 Musique douce')}${swRow('auto','✨ Croix auto','Après une bonne mascotte')}
-    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
+    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${SPECIAL&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
     <div style="height:12px"></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mWho">👤 Changer de joueur</button></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mTheme">🎨 Thèmes</button><button class="soft" id="mLove">💌 Prénom & mot</button></div>
@@ -1800,17 +1815,58 @@ const _open=openModal;openModal=function(h,l){modal.classList.remove('nopet');_o
    Joueurs : "Qui joue ?" (progression séparée par prénom)
    ========================================================= */
 function profData(id,k,d){try{const v=localStorage.getItem('kd-'+id+'-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}}
+let whoTaps=0,whoT=null;
 function showPicker(){
   showScreen('who');
-  $('whoList').innerHTML=PROFILES.map(p=>{
+  const list=pickerProfiles();
+  $('whoTitle').textContent=list.length?'Qui joue ?':'Bienvenue !';
+  $('whoSub').textContent=list.length?'Chacun garde sa progression':'Crée ton joueur pour commencer ✨';
+  let html=list.map(p=>{
     const petId=profData(p.id,'pet',p.def),eq=profData(p.id,'eq',null)||NOEQ;
     const lvl=profData(p.id,'lvl',1),ber=profData(p.id,'berries',25),cl=profData(p.id,'clsLvl',1);
+    const loc=!SPECIAL_PROFILES.some(x=>x.id===p.id);
     return `<button class="soft whocard" data-p="${p.id}"><div class="whopet">${pet(petId,'happy',eq)}</div>
-      <div class="whoname">${esc(p.name)}</div><div class="whost">🗺️ ${lvl} · ⭐ ${cl} · 🍓 ${ber}</div></button>`}).join('');
-  document.querySelectorAll('.whocard').forEach(b=>b.onclick=()=>{ensureAudio();sfx.start();
-    const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,{n:24,kinds:['heart','star'],speed:8,size:11});
-    try{sessionStorage.setItem('kd-profile',b.dataset.p);sessionStorage.setItem('kd-go','1')}catch(e){}
-    $('wipe').classList.add('on');setTimeout(()=>location.reload(),420)});
+      <div class="whoname">${esc(p.name)}</div><div class="whost">🗺️ ${lvl} · ⭐ ${cl} · 🍓 ${ber}</div>${loc?`<i class="wedit" data-edit="${p.id}">✏️</i>`:''}</button>`}).join('');
+  html+=`<button class="soft whocard wadd" id="whoAdd"><div class="waddplus">＋</div><div class="whoname">Nouveau joueur</div></button>`;
+  $('whoList').innerHTML=html;
+  document.querySelectorAll('.whocard[data-p]').forEach(b=>b.onclick=e=>{if(e.target.closest('.wedit'))return;enterProfile(b.dataset.p,b)});
+  document.querySelectorAll('.wedit').forEach(x=>x.onclick=e=>{e.stopPropagation();sfx.ui();createProfile(false,x.dataset.edit)});
+  $('whoAdd').onclick=()=>{sfx.ui();createProfile(false)};
+  const t=$('whoTitle');t.onclick=()=>{whoTaps++;clearTimeout(whoT);whoT=setTimeout(()=>whoTaps=0,2000);if(whoTaps>=7){whoTaps=0;if(coupleOn())toast('Mode couple déjà activé 💞');else coupleUnlock()}};
+  if(!list.length)setTimeout(()=>createProfile(true),150);
+}
+function enterProfile(id,b){ensureAudio();sfx.start();if(b){const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,{n:24,kinds:['heart','star'],speed:8,size:11})}
+  try{sessionStorage.setItem('kd-profile',id);sessionStorage.setItem('kd-go','1')}catch(e){}$('wipe').classList.add('on');setTimeout(()=>location.reload(),420)}
+let cpPet='bunny';
+function createProfile(first,editId){
+  const freePets=PETS.filter(p=>p.price===0&&!p.egg&&!p.req),existing=editId?localProfiles().find(p=>p.id===editId):null;
+  cpPet=existing?existing.pet:'bunny';
+  openModal(`<h2>${letters(editId?'Modifier':first?'Bienvenue !':'Nouveau joueur')}</h2>
+    <div class="cppet"><button class="soft arrow" id="cpPrev">‹</button><div class="bigpet" id="cpAv"></div><button class="soft arrow" id="cpNext">›</button></div>
+    <label class="field">Ton prénom<input id="cpName" maxlength="16" value="${esc(existing?existing.name:'')}" placeholder="Ex : Léa"></label>
+    <div class="mbtns">${editId?'<button class="soft" id="cpDel" style="flex:.55;color:#e3405f">🗑️</button>':first?'':'<button class="soft" id="cpCancel">Annuler</button>'}<button class="candy" id="cpSave">${editId?'Enregistrer':'Jouer ✨'}</button></div>`,true);
+  modal.classList.add('nopet');
+  const draw=()=>$('cpAv').innerHTML=pet(cpPet,'happy');draw();
+  const cyc=d=>{const i=freePets.findIndex(p=>p.id===cpPet);cpPet=freePets[(i+d+freePets.length)%freePets.length].id;draw();sfx.pet(4)};
+  $('cpPrev').onclick=()=>cyc(-1);$('cpNext').onclick=()=>cyc(1);$('cpAv').onclick=()=>cyc(1);
+  if($('cpCancel'))$('cpCancel').onclick=()=>{sfx.ui();closeModal()};
+  if($('cpDel'))$('cpDel').onclick=e=>{if(e.target.dataset.c){const l=localProfiles().filter(p=>p.id!==editId);GLS.set('profiles',l);
+      Object.keys(localStorage).filter(k=>k.startsWith('kd-'+editId+'-')).forEach(k=>localStorage.removeItem(k));sfx.erase();closeModal();showPicker()}else{e.target.dataset.c='1';e.target.textContent='Sûr ?'}};
+  $('cpSave').onclick=()=>{const nm=$('cpName').value.trim()||'Joueur';
+    if(editId){const l=localProfiles(),p=l.find(x=>x.id===editId);if(p){p.name=nm;p.pet=cpPet}GLS.set('profiles',l);
+      localStorage.setItem('kd-'+editId+'-pet',JSON.stringify(cpPet));localStorage.setItem('kd-'+editId+'-name',JSON.stringify(nm));sfx.ui();closeModal();showPicker()}
+    else{const id='p_'+uid(),l=localProfiles();l.push({id,name:nm,pet:cpPet});GLS.set('profiles',l);
+      localStorage.setItem('kd-'+id+'-pet',JSON.stringify(cpPet));localStorage.setItem('kd-'+id+'-name',JSON.stringify(nm));
+      sfx.win();burst(innerWidth/2,innerHeight/2,{n:26,kinds:['heart','star'],speed:8,size:11});enterProfile(id)}};
+}
+function coupleUnlock(){
+  let code='';const draw=()=>$('pinDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<code.length?'on':''}"></i>`).join('');
+  openModal(`<h2>${letters('Code')}</h2><p class="small" style="margin-top:6px">Entre le code secret 🔐</p><div class="pindots" id="pinDots"></div><div class="pinpad">${[1,2,3,4,5,6,7,8,9,'✕',0,'⌫'].map(k=>`<button class="soft" data-k="${k}">${k}</button>`).join('')}</div>`,true);
+  modal.classList.add('nopet');draw();
+  modal.querySelectorAll('.pinpad button').forEach(bn=>bn.onclick=()=>{const k=bn.dataset.k;tone(800,{dur:.05,type:'triangle',vol:.06});
+    if(k==='✕'){closeModal();return}if(k==='⌫'){code=code.slice(0,-1);draw();return}code+=k;draw();
+    if(code.length===4){if(code===ADMIN_PIN){GLS.set('couple',true);sfx.buy();burst(innerWidth/2,innerHeight/2,{n:30,kinds:['heart'],speed:8,size:12});closeModal();showPicker();toast('💞 Mode couple activé !')}
+      else{sfx.no();$('pinDots').animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],{duration:300});code='';setTimeout(draw,300)}}});
 }
 function switchPlayer(){try{sessionStorage.removeItem('kd-profile')}catch(e){}sfx.whoosh();$('wipe').classList.add('on');setTimeout(()=>location.reload(),420)}
 
@@ -1861,9 +1917,9 @@ function pendingItems(){
   (MSG.lettres||[]).filter(l=>forMe(l)&&unlocked()>l.niveau&&!sn.includes('l'+l.id)).forEach(l=>out.push({t:'letter',x:l}));
   return out;
 }
-function renderInboxBtn(){const b=$('inboxBtn');if(!b)return;let n=b.querySelector('.notif');const on=pendingItems().length>0;
+function renderInboxBtn(){const b=$('inboxBtn');if(!b)return;if(!SPECIAL){b.style.display='none';return}let n=b.querySelector('.notif');const on=pendingItems().length>0;
   if(on&&!n){n=document.createElement('span');n.className='notif';b.appendChild(n)}if(!on&&n)n.remove()}
-function checkInbox(){if(ov.classList.contains('show')||$('menu').classList.contains('hidden'))return;const p=pendingItems()[0];if(p){showItem(p);return}
+function checkInbox(){if(!SPECIAL)return;if(ov.classList.contains('show')||$('menu').classList.contains('hidden'))return;const p=pendingItems()[0];if(p){showItem(p);return}
   if(typeof shouldAskNotif==='function'&&shouldAskNotif())showNotifAsk()}
 const fromName=()=>{const o=PROFILES.find(p=>p.id!==PROFILE);return o?o.name:''};
 const deN=n=>/^[aeiouyhéèêàâîôû]/i.test(n)?"d'"+n:'de '+n;
@@ -2064,7 +2120,7 @@ function progSnapshot(){
 }
 let progT=null;
 function syncProgress(now){
-  if(!PROFILE||!repoInfo()||!GLS.get('token',''))return;
+  if(!SPECIAL||!PROFILE||!repoInfo()||!GLS.get('token',''))return;
   clearTimeout(progT);
   progT=setTimeout(async()=>{
     if(!now&&Date.now()-LS.get('progSync',0)<60000)return;
@@ -2101,7 +2157,7 @@ const TROLLS=[
 const vengeanceOn=()=>!(MSG.config&&MSG.config.vengeance===false);
 const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id)&&(!t.date||Date.now()-new Date(t.date)<3*864e5)&&(PROFILE!==ADMIN_PROFILE||vengeanceOn()||!t.de||t.de===S.name));
 let trollT=null;
-function checkTroll(){if(!window.__cloudReady)return;const t=pendingTroll();if(!t||trollT)return;
+function checkTroll(){if(!SPECIAL||!window.__cloudReady)return;const t=pendingTroll();if(!t||trollT)return;
   trollT=setTimeout(()=>{trollT=null;if(ov.classList.contains('show')){checkTroll();return}markSeen('t'+t.id);runTroll(t.type,t.de)},1200+mr()*1300)}
 function trollReveal(by){setTimeout(()=>{sfx.win();confetti();
   if(window.__preview){window.__preview=false;toast('Voilà ce qu\'il va subir 😈');setTimeout(showRevenge,1200);return}
@@ -2374,8 +2430,8 @@ setTimeout(()=>{if(PROFILE&&LS.get('notifOn',false)&&pushOK()&&isApp()&&Notifica
 
 $('inboxBtn').onclick=()=>{sfx.ui();showInbox()};
 // Vérifie les nouveautés pendant que le jeu est ouvert (trolls, mots, cadeaux)
-setInterval(()=>{if(PROFILE&&document.visibilityState==='visible')loadMSG()},8000);
-document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('bgpause',document.visibilityState!=='visible');if(PROFILE&&document.visibilityState==='visible')loadMSG()});
+setInterval(()=>{if(SPECIAL&&PROFILE&&document.visibilityState==='visible')loadMSG()},8000);
+document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('bgpause',document.visibilityState!=='visible');if(SPECIAL&&PROFILE&&document.visibilityState==='visible')loadMSG()});
 
 /* démarrage */
 document.body.classList.toggle('lite',S.lite);
@@ -2386,8 +2442,9 @@ document.querySelectorAll('.ttl').forEach(h=>{if(!h.innerHTML)h.innerHTML=[...'K
 if(!PROFILE){$('splash').classList.add('hidden');showPicker()}
 else{let goMenu=false;try{goMenu=!!sessionStorage.getItem('kd-go');sessionStorage.removeItem('kd-go')}catch(e){}
   if(goMenu){renderMenu();showScreen('menu');if(!LS.get('seenRules3',false)){LS.set('seenRules3',true);setTimeout(()=>showRules(true),600)}}}
-if(PROFILE)cloudPull();else window.__cloudReady=true;
-loadMSG();
+$('inboxBtn').style.display=SPECIAL?'':'none';
+if(SPECIAL&&PROFILE)cloudPull();else window.__cloudReady=true;
+if(SPECIAL)loadMSG();
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude|anthropic|usercontent/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
