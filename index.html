@@ -269,6 +269,18 @@ body.night #bg .twk{opacity:1}
 .troll{display:flex;align-items:center;gap:10px;border-radius:18px;padding:10px;text-align:left}
 .troll .ti{font-size:30px}.troll .tt{flex:1}.troll .tt b{display:block;font-size:14.5px}.troll .tt small{font-size:11.5px;opacity:.75}
 .troll .tb{display:flex;flex-direction:column;gap:5px}.troll .tb button{border-radius:12px;padding:6px 10px;font-size:12.5px}
+.famrow{background:var(--solid);border-radius:16px;padding:12px;margin-bottom:9px;text-align:left}
+.famrow .fh{display:flex;align-items:center;gap:9px;font-weight:700;color:var(--plum2);font-size:14.5px}
+.famrow .fh .fp{width:38px;height:38px;flex:0 0 38px}.famrow .fh .fp .petsvg{width:100%;height:100%}
+.famrow .fh .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.famrow .facts{display:flex;gap:9px;margin-top:11px}
+.famrow .facts button{flex:1;border:none;border-radius:13px;padding:11px 8px;font-size:13.5px;font-weight:700;cursor:pointer}
+.famrow .facts .fyes{background:linear-gradient(180deg,#8fe39b,#39c45c);color:#fff;box-shadow:0 3px 0 #2a9847}
+.famrow .facts .fno{background:#fff0f3;color:#e3405f}
+.famrow .fpair{display:flex;align-items:center;gap:8px;margin-top:11px;font-size:12.5px;color:var(--plum2);font-weight:600}
+.famrow .fpair select{flex:1;min-width:0}
+.famrow .frm{margin-top:10px;width:100%;border:none;border-radius:13px;padding:10px;font-size:12.5px;font-weight:700;background:#fff0f3;color:#e3405f;cursor:pointer}
+.fambadge{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:99px;background:#ffe9a8;color:#8a6d00;margin-left:auto;font-weight:700}
 .tov{position:fixed;inset:0;z-index:95;pointer-events:none}
 .quake{animation:bshake .18s linear infinite}
 html.disco{animation:disco .46s linear infinite}@keyframes disco{to{filter:hue-rotate(360deg) saturate(1.8)}}
@@ -1907,6 +1919,7 @@ async function initFamily(){
   refreshRole();
   if(fam()&&PROFILE){cloudPull()}else{window.__cloudReady=true}
   if(fam()){checkTroll();if(!$('menu').classList.contains('hidden'))checkInbox()}
+  else if(mePlayer()&&!$('menu').classList.contains('hidden'))setTimeout(pendingWelcome,500);
 }
 function showConnect(){
   const r=repoInfo()||{owner:'',repo:'kawaidoku-messages'};
@@ -1948,11 +1961,11 @@ function renderFam(B,head){
   const reg=famReg(),pend=reg.filter(p=>p.status==='pending'),ok=reg.filter(p=>p.status==='ok');
   const optPartner=(cur,selfId)=>`<option value="">Solo</option>`+ok.filter(p=>p.id!==selfId).map(p=>`<option value="${p.id}"${cur===p.id?' selected':''}>${esc(p.name)}</option>`).join('');
   let h=head+`<p class="small">Valide les membres, mets-les en solo ou associe-les en couple. Les gens que tu n'ajoutes pas restent de simples joueurs sans accès à vos parties.</p>`;
-  if(pend.length)h+=`<div class="sect">En attente (${pend.length})</div>`+pend.map(p=>`<div class="aitem"><b><span style="display:inline-block;width:34px;vertical-align:middle">${pet(p.pet||'bunny','happy')}</span> ${esc(p.name)}</b>
-    <div class="tb"><button class="candy" data-ok="${p.id}">✅ Accepter</button><button class="soft" data-no="${p.id}">✕ Refuser</button></div></div>`).join('');
-  h+=`<div class="sect" style="margin-top:10px">Membres validés</div>`+(ok.map(p=>`<div class="aitem"><b><span style="display:inline-block;width:34px;vertical-align:middle">${pet(p.pet||'bunny','happy')}</span> ${esc(p.name)}${p.admin?' 👑':''}</b>
-    <label class="field" style="margin:6px 0">En couple avec <select data-pair="${p.id}">${optPartner(p.partner,p.id)}</select></label>
-    ${p.admin?'':`<button class="soft" data-rm="${p.id}" style="color:#e3405f">🗑️ Retirer</button>`}</div>`).join('')||'<p class="small">Aucun membre validé pour l\'instant.</p>');
+  if(pend.length)h+=`<div class="sect">En attente (${pend.length})</div>`+pend.map(p=>`<div class="famrow"><div class="fh"><span class="fp">${pet(p.pet||'bunny','happy')}</span><span class="fn">${esc(p.name)}</span><span class="fambadge">en attente</span></div>
+    <div class="facts"><button class="fyes" data-ok="${p.id}">✅ Accepter</button><button class="fno" data-no="${p.id}">✕ Refuser</button></div></div>`).join('');
+  h+=`<div class="sect" style="margin-top:10px">Membres validés</div>`+(ok.map(p=>`<div class="famrow"><div class="fh"><span class="fp">${pet(p.pet||'bunny','happy')}</span><span class="fn">${esc(p.name)}</span>${p.admin?'<span class="fambadge" style="background:#ffd9ec;color:#b03a72">admin 👑</span>':''}</div>
+    <div class="fpair">💞 En couple avec <select data-pair="${p.id}">${optPartner(p.partner,p.id)}</select></div>
+    ${p.admin?'':`<button class="frm" data-rm="${p.id}">🗑️ Retirer de la famille</button>`}</div>`).join('')||'<p class="small">Aucun membre validé pour l\'instant.</p>');
   B.innerHTML=h;
   B.querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>famAct(ps=>{const p=ps.find(x=>x.id===b.dataset.ok);if(p)p.status='ok';return!!p}));
   B.querySelectorAll('[data-no]').forEach(b=>b.onclick=()=>famAct(ps=>{const p=ps.find(x=>x.id===b.dataset.no);if(p){p.status='refused';p.partner=null;ps.forEach(x=>{if(x.partner===p.id)x.partner=null})}return!!p}));
@@ -1964,6 +1977,15 @@ function renderFam(B,head){
     return true})});
 }
 async function famAct(mut){try{const ok=await pushPlayers(mut);if(ok){sfx.buy();renderAdmin()}else toast('Connexion requise')}catch(e){sfx.no();toast('Erreur : '+e.message)}}
+function pendingWelcome(){
+  const m=mePlayer();if(!m||m.status!=='pending')return;
+  if(LS.get('famWelcomed',false)){toast('💌 En attente de validation par l\'admin');return}
+  LS.set('famWelcomed',true);
+  openModal(`<div class="mtop">${pet(S.pet||m.pet||'bunny','happy')}</div><h2>${letters('Bienvenue '+(S.name||m.name)+' !')}</h2>
+    <p style="font-weight:600;color:var(--plum2);margin:4px 0 14px">Ton profil est créé 🎉<br>Demande à l'admin de te valider pour débloquer les petits messages et surprises 💌</p>
+    <div class="mbtns"><button class="candy" id="mOk">C'est parti ✨</button></div>`,true);
+  $('mOk').onclick=()=>{sfx.ui();closeModal()};
+}
 
 /* =========================================================
    Messages d'Ethan (synchronisés via GitHub)
