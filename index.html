@@ -554,7 +554,7 @@ body.dark .sw{background:#5a4170}
   <section class="screen hidden" id="admin">
     <div class="topbar"><button class="soft iconbtn" id="admBack">←</button><h3>🔐 Admin</h3><div style="width:44px"></div></div>
     <div class="atabs">
-      <button class="soft atab" data-a="suivi">📊 Suivi</button><button class="soft atab" data-a="troll">😈 Trolls</button><button class="soft atab" data-a="msg">💌 Messages</button><button class="soft atab" data-a="letters">📜 Lettres</button>
+      <button class="soft atab" data-a="fam">👪 Famille</button><button class="soft atab" data-a="suivi">📊 Suivi</button><button class="soft atab" data-a="troll">😈 Trolls</button><button class="soft atab" data-a="msg">💌 Messages</button><button class="soft atab" data-a="letters">📜 Lettres</button>
       <button class="soft atab" data-a="prog">📅 Programmés</button><button class="soft atab" data-a="gift">🎁 Cadeaux</button>
       <button class="soft atab" data-a="test">🛠️ Test</button><button class="soft atab" data-a="conn">⚙️ Connexion</button>
     </div>
@@ -653,15 +653,28 @@ const GLS={get(k,d){try{const v=localStorage.getItem('kd-g-'+k);return v===null?
 const SPECIAL_PROFILES=[{id:'noellya',name:'Noëllya',def:'bunny'},{id:'ethan',name:'Ethan',def:'cat'}];
 // Les profils du couple (et l'admin, les messages, les trolls, la sauvegarde partagée)
 // n'apparaissent qu'une fois le "mode couple" déverrouillé par le code secret.
-try{if(!GLS.get('couple',false)&&(GLS.get('token','')||Object.keys(localStorage).some(k=>/^kd-(ethan|noellya)-/.test(k))))GLS.set('couple',true)}catch(e){}
 const coupleOn=()=>GLS.get('couple',false);
+const isLinked=()=>!!GLS.get('token','');
 const localProfiles=()=>GLS.get('profiles',[]);
-const pickerProfiles=()=>(coupleOn()?SPECIAL_PROFILES:[]).concat(localProfiles());
+const myFam=()=>GLS.get('myplayers',[]);
+const famReg=()=>{try{return (JSON.parse(localStorage.getItem('kd-g-msgcache')||'{}').players)||[]}catch(e){return[]}};
+const famApproved=()=>famReg().filter(p=>p.status==='ok');
+function pickerProfiles(){
+  const reg=famReg(),seen=new Set(),out=[];
+  if(isLinked()){const want=new Set(myFam());reg.forEach(p=>{if(want.has(p.id)&&p.partner)want.add(p.partner)});
+    reg.forEach(p=>{if(want.has(p.id)&&p.status!=='refused'){out.push({id:p.id,name:p.name,def:p.pet||'bunny',fam:true,status:p.status});seen.add(p.id)}});}
+  localProfiles().forEach(p=>{if(!seen.has(p.id)){out.push(p);seen.add(p.id)}});
+  return out;
+}
 const PROFILES=SPECIAL_PROFILES;
 let PROFILE=null;try{PROFILE=sessionStorage.getItem('kd-profile')}catch(e){}
-if(!pickerProfiles().some(p=>p.id===PROFILE))PROFILE=null;
-const PROF=pickerProfiles().find(p=>p.id===PROFILE)||SPECIAL_PROFILES.find(p=>p.id===PROFILE)||{name:'Joueur',def:'bunny'};
-const SPECIAL=PROFILE==='ethan'||PROFILE==='noellya';
+const allKnown=()=>pickerProfiles().concat(SPECIAL_PROFILES);
+if(!allKnown().some(p=>p.id===PROFILE))PROFILE=null;
+const PROF=allKnown().find(p=>p.id===PROFILE)||{name:'Joueur',def:'bunny'};
+const mePlayer=()=>famReg().find(p=>p.id===PROFILE)||null;
+const fam=()=>isLinked()&&!!famReg().find(p=>p.id===PROFILE&&p.status==='ok');
+const isAdmin=()=>{const m=mePlayer();return !!(m&&m.admin)};
+const partnerPlayer=()=>{const m=mePlayer();if(!m||!m.partner)return null;return famReg().find(p=>p.id===m.partner)||null};
 const LS={get(k,d){try{const v=localStorage.getItem('kd-'+(PROFILE||'_')+'-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
           set(k,v){if(!PROFILE)return;try{localStorage.setItem('kd-'+PROFILE+'-'+k,JSON.stringify(v));if(window.__cloudReady&&!['progSync','subRefresh','notifAsked','notifOn','cloudPush'].includes(k)){localStorage.setItem('kd-'+PROFILE+'-_mod',String(Date.now()));if(typeof scheduleCloud==='function')scheduleCloud(k==='seenMsg')}}catch(e){}}};
 const S={sound:LS.get('sound',true),music:LS.get('music',false),auto:LS.get('auto',true),
@@ -1271,7 +1284,7 @@ function applyLook(){
     P.cmap=regionColors(P.n,P.g,pal);for(let r=0;r<P.n;r++)for(let c=0;c<P.n;c++){tileEl(r,c).style.backgroundColor=P.cmap[P.g[r][c]];tileEl(r,c).style.color=P.cmap[P.g[r][c]]}}
 }
 document.querySelectorAll('.ttl').forEach(h=>h.innerHTML=[...'Kawaidoku'].map((ch,i)=>`<span style="animation-delay:${i*.09}s">${ch}</span>`).join(''));
-const subTxt=()=>S.name?(SPECIAL?`Pour ${S.name} 💖`:`Salut ${S.name} ! ✨`):'Le puzzle le plus mignon du monde';
+const subTxt=()=>S.name?(partnerPlayer()?`Pour ${S.name} 💖`:`Salut ${S.name} ! ✨`):'Le puzzle le plus mignon du monde';
 
 /* ---------- Splash ---------- */
 $('splash').addEventListener('click',()=>{ensureAudio();sfx.start();burst(innerWidth/2,innerHeight/2,{n:26,kinds:['heart','star'],speed:9,size:12});
@@ -1298,7 +1311,7 @@ function renderMenu(){
   $('gSnd').textContent=S.sound?'🔊':'🔇';
   const w=LS.get('wins',0);$('stats').textContent=w?`🏆 ${w} grille${w>1?'s':''} résolue${w>1?'s':''}`:'';
   document.querySelectorAll('.sub').forEach(e=>e.textContent=subTxt());
-  {const sb=document.querySelector('#menu .sub');sb.classList.add('subbtn');sb.innerHTML=`${SPECIAL?'Pour ':''}${esc(S.name)} ${SPECIAL?'💖 ':''}<small>changer</small>`;sb.onclick=()=>{sfx.ui();switchPlayer()}}
+  {const sb=document.querySelector('#menu .sub');sb.classList.add('subbtn');sb.innerHTML=`${partnerPlayer()?'Pour ':''}${esc(S.name)} ${partnerPlayer()?'💖 ':''}<small>changer</small>`;sb.onclick=()=>{sfx.ui();switchPlayer()}}
   renderInboxBtn();if(typeof renderNotifBanner==='function')renderNotifBanner();setTimeout(checkInbox,700);
   if(typeof syncProgress==='function'){syncProgress();checkTroll()}
   renderDaily();renderEgg();{const b=$('shopBtn');let n=b.querySelector('.notif');const on=claimable();if(on&&!n){n=document.createElement('span');n.className='notif';b.appendChild(n)}if(!on&&n)n.remove()}$('maraSub').textContent=`Niveau ${clsLvl()} · difficulté surprise 🎲`;const u=unlocked();$('advSub').textContent=`Niveau ${u} · ${bandOf(u).name}`;renderAutoBtn();
@@ -1767,7 +1780,7 @@ function swRow(key,label,sub){return `<div class="setrow"><div>${label}${sub?`<s
 function showSettings(){
   openModal(`<h2>${letters('Réglages')}</h2>
     ${swRow('sound','🔊 Sons')}${swRow('music','🎵 Musique douce')}${swRow('auto','✨ Croix auto','Après une bonne mascotte')}
-    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${SPECIAL&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
+    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
     <div style="height:12px"></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mWho">👤 Changer de joueur</button></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mTheme">🎨 Thèmes</button><button class="soft" id="mLove">💌 Prénom & mot</button></div>
@@ -1819,7 +1832,7 @@ let whoTaps=0,whoT=null;
 function showPicker(){
   showScreen('who');
   const list=pickerProfiles();
-  $('whoTitle').textContent=list.length?'Qui joue ?':'Bienvenue !';
+  $('whoTitle').textContent=list.length?'Qui joue ?':(isLinked()?'Rejoindre la famille ✨':'Bienvenue !');
   $('whoSub').textContent=list.length?'Chacun garde sa progression':'Crée ton joueur pour commencer ✨';
   let html=list.map(p=>{
     const petId=profData(p.id,'pet',p.def),eq=profData(p.id,'eq',null)||NOEQ;
@@ -1827,13 +1840,13 @@ function showPicker(){
     const loc=!SPECIAL_PROFILES.some(x=>x.id===p.id);
     return `<button class="soft whocard" data-p="${p.id}"><div class="whopet">${pet(petId,'happy',eq)}</div>
       <div class="whoname">${esc(p.name)}</div><div class="whost">🗺️ ${lvl} · ⭐ ${cl} · 🍓 ${ber}</div>${loc?`<i class="wedit" data-edit="${p.id}">✏️</i>`:''}</button>`}).join('');
-  html+=`<button class="soft whocard wadd" id="whoAdd"><div class="waddplus">＋</div><div class="whoname">Nouveau joueur</div></button>`;
+  html+=`<button class="soft whocard wadd" id="whoAdd"><div class="waddplus">＋</div><div class="whoname">${isLinked()?'Rejoindre la famille':'Nouveau joueur'}</div></button>`;
   $('whoList').innerHTML=html;
   document.querySelectorAll('.whocard[data-p]').forEach(b=>b.onclick=e=>{if(e.target.closest('.wedit'))return;enterProfile(b.dataset.p,b)});
   document.querySelectorAll('.wedit').forEach(x=>x.onclick=e=>{e.stopPropagation();sfx.ui();createProfile(false,x.dataset.edit)});
-  $('whoAdd').onclick=()=>{sfx.ui();createProfile(false)};
-  const t=$('whoTitle');t.onclick=()=>{whoTaps++;clearTimeout(whoT);whoT=setTimeout(()=>whoTaps=0,2000);if(whoTaps>=7){whoTaps=0;if(coupleOn())toast('Mode couple déjà activé 💞');else coupleUnlock()}};
-  if(!list.length)setTimeout(()=>createProfile(true),150);
+  $('whoAdd').onclick=()=>{sfx.ui();isLinked()?joinFamily(false):createProfile(false)};
+  const t=$('whoTitle');t.onclick=()=>{whoTaps++;clearTimeout(whoT);whoT=setTimeout(()=>whoTaps=0,2000);if(whoTaps>=7){whoTaps=0;coupleUnlock()}};
+  if(!list.length)setTimeout(()=>isLinked()?joinFamily(true):createProfile(true),150);
 }
 function enterProfile(id,b){ensureAudio();sfx.start();if(b){const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,{n:24,kinds:['heart','star'],speed:8,size:11})}
   try{sessionStorage.setItem('kd-profile',id);sessionStorage.setItem('kd-go','1')}catch(e){}$('wipe').classList.add('on');setTimeout(()=>location.reload(),420)}
@@ -1865,15 +1878,97 @@ function coupleUnlock(){
   modal.classList.add('nopet');draw();
   modal.querySelectorAll('.pinpad button').forEach(bn=>bn.onclick=()=>{const k=bn.dataset.k;tone(800,{dur:.05,type:'triangle',vol:.06});
     if(k==='✕'){closeModal();return}if(k==='⌫'){code=code.slice(0,-1);draw();return}code+=k;draw();
-    if(code.length===4){if(code===ADMIN_PIN){GLS.set('couple',true);sfx.buy();burst(innerWidth/2,innerHeight/2,{n:30,kinds:['heart'],speed:8,size:12});closeModal();showPicker();toast('💞 Mode couple activé !')}
+    if(code.length===4){if(code===ADMIN_PIN){sfx.buy();closeModal();setTimeout(showConnect,250)}
       else{sfx.no();$('pinDots').animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],{duration:300});code='';setTimeout(draw,300)}}});
 }
 function switchPlayer(){try{sessionStorage.removeItem('kd-profile')}catch(e){}sfx.whoosh();$('wipe').classList.add('on');setTimeout(()=>location.reload(),420)}
+async function pushPlayers(mut){const r=repoInfo(),t=GLS.get('token','');if(!r||!t)return false;
+  const{data,sha}=await fetchRemote(true);data.players=data.players||[];const res=mut(data.players);if(res===false)return false;
+  await ghWrite('messages.json',data,sha,'👪 famille mise à jour');MSG=data;GLS.set('msgcache',MSG);return true}
+async function ensureCoupleSeed(){
+  if(!isLinked())return;
+  const isC=Object.keys(localStorage).some(k=>/^kd-(ethan|noellya)-/.test(k));
+  if(!isC)return;
+  await pushPlayers(ps=>{let ch=false;
+    const ens=(id,nm,pt,admin,pa)=>{let p=ps.find(x=>x.id===id);if(!p){ps.push({id,name:nm,pet:pt,status:'ok',partner:pa,admin:!!admin,created:Date.now()});ch=true}else{if(p.status!=='ok'){p.status='ok';ch=true}if(pa&&p.partner!==pa){p.partner=pa;ch=true}if(admin&&!p.admin){p.admin=true;ch=true}}};
+    ens('ethan','Ethan','cat',true,'noellya');ens('noellya','Noëllya','bunny',false,'ethan');return ch});
+  const mine=GLS.get('myplayers',[]);let mc=false;['ethan','noellya'].forEach(id=>{if(!mine.includes(id)){mine.push(id);mc=true}});if(mc)GLS.set('myplayers',mine);
+}
+function refreshRole(){
+  $('inboxBtn').style.display=fam()?'':'none';
+  if(!$('who').classList.contains('hidden'))showPicker();
+  if(!$('menu').classList.contains('hidden'))renderMenu();
+  renderInboxBtn();
+}
+async function initFamily(){
+  if(!isLinked()){window.__cloudReady=true;return}
+  try{const{data}=await fetchRemote(true);MSG=data;GLS.set('msgcache',MSG)}catch(e){}
+  try{await ensureCoupleSeed()}catch(e){}
+  refreshRole();
+  if(fam()&&PROFILE){cloudPull()}else{window.__cloudReady=true}
+  if(fam()){checkTroll();if(!$('menu').classList.contains('hidden'))checkInbox()}
+}
+function showConnect(){
+  const r=repoInfo()||{owner:'',repo:'kawaidoku-messages'};
+  openModal(`<h2>${letters('Connexion famille')}</h2>
+    <p class="small" style="margin:4px 0 10px">Colle la clé GitHub de la famille (voir LISEMOI). Elle reste sur ce téléphone.</p>
+    <label class="field">Compte GitHub<input id="cOwner" value="${esc(r.owner)}" placeholder="ton-pseudo"></label>
+    <label class="field">Dépôt privé<input id="cRepo" value="${esc(r.repo||'kawaidoku-messages')}"></label>
+    <label class="field">Clé (token)<input id="cTok" type="password" value="${esc(GLS.get('token',''))}" placeholder="github_pat_…"></label>
+    <div class="mbtns"><button class="soft" id="cCancel">Annuler</button><button class="candy" id="cTest">Connecter 🔌</button></div><div id="cRes"></div>`,true);
+  modal.classList.add('nopet');
+  $('cCancel').onclick=()=>{sfx.ui();closeModal()};
+  $('cTest').onclick=async()=>{const o=$('cOwner').value.trim(),rp=$('cRepo').value.trim()||'kawaidoku-messages',tk=$('cTok').value.trim();
+    if(!o||!tk){$('cRes').innerHTML='<div class="astat">Remplis le compte et la clé.</div>';return}
+    GLS.set('repo',{owner:o,repo:rp});GLS.set('token',tk);$('cRes').innerHTML='<p class="small">Test…</p>';
+    try{const{data}=await fetchRemote(true);MSG=data;GLS.set('msgcache',MSG);sfx.buy();await ensureCoupleSeed();closeModal();showPicker();toast('✅ Connecté à la famille')}
+    catch(e){GLS.set('token','');$('cRes').innerHTML=`<div class="astat">❌ ${esc(e.message)}. Vérifie la clé.</div>`;sfx.no()}};
+}
+function joinFamily(first){
+  const freePets=PETS.filter(p=>p.price===0&&!p.egg&&!p.req);cpPet='bunny';
+  openModal(`<h2>${letters(first?'Rejoindre la famille':'Nouveau membre')}</h2>
+    <div class="cppet"><button class="soft arrow" id="cpPrev">‹</button><div class="bigpet" id="cpAv"></div><button class="soft arrow" id="cpNext">›</button></div>
+    <label class="field">Ton prénom<input id="cpName" maxlength="16" placeholder="Ex : Léa"></label>
+    <div class="mbtns">${first?'':'<button class="soft" id="cpCancel">Annuler</button>'}<button class="candy" id="cpSave">Rejoindre ✨</button></div><div id="cpRes"></div>`,true);
+  modal.classList.add('nopet');
+  const draw=()=>$('cpAv').innerHTML=pet(cpPet,'happy');draw();
+  const cyc=d=>{const i=freePets.findIndex(p=>p.id===cpPet);cpPet=freePets[(i+d+freePets.length)%freePets.length].id;draw();sfx.pet(4)};
+  $('cpPrev').onclick=()=>cyc(-1);$('cpNext').onclick=()=>cyc(1);$('cpAv').onclick=()=>cyc(1);
+  if($('cpCancel'))$('cpCancel').onclick=()=>{sfx.ui();closeModal()};
+  $('cpSave').onclick=async()=>{const nm=$('cpName').value.trim()||'Joueur';const b=$('cpSave');b.disabled=true;b.textContent='…';
+    const id='p_'+uid();
+    try{const ok=await pushPlayers(ps=>{ps.push({id,name:nm,pet:cpPet,status:'pending',partner:null,created:Date.now()});return true});
+      if(!ok)throw new Error('connexion');
+      const mine=myFam();mine.push(id);GLS.set('myplayers',mine);
+      localStorage.setItem('kd-'+id+'-pet',JSON.stringify(cpPet));localStorage.setItem('kd-'+id+'-name',JSON.stringify(nm));
+      sfx.win();burst(innerWidth/2,innerHeight/2,{n:26,kinds:['heart','star'],speed:8,size:11});enterProfile(id);
+    }catch(e){b.disabled=false;b.textContent='Rejoindre ✨';$('cpRes').innerHTML='<div class="astat">❌ Connexion requise. Demande à l\'admin.</div>';sfx.no()}};
+}
+function renderFam(B,head){
+  const reg=famReg(),pend=reg.filter(p=>p.status==='pending'),ok=reg.filter(p=>p.status==='ok');
+  const optPartner=(cur,selfId)=>`<option value="">Solo</option>`+ok.filter(p=>p.id!==selfId).map(p=>`<option value="${p.id}"${cur===p.id?' selected':''}>${esc(p.name)}</option>`).join('');
+  let h=head+`<p class="small">Valide les membres, mets-les en solo ou associe-les en couple. Les gens que tu n'ajoutes pas restent de simples joueurs sans accès à vos parties.</p>`;
+  if(pend.length)h+=`<div class="sect">En attente (${pend.length})</div>`+pend.map(p=>`<div class="aitem"><b><span style="display:inline-block;width:34px;vertical-align:middle">${pet(p.pet||'bunny','happy')}</span> ${esc(p.name)}</b>
+    <div class="tb"><button class="candy" data-ok="${p.id}">✅ Accepter</button><button class="soft" data-no="${p.id}">✕ Refuser</button></div></div>`).join('');
+  h+=`<div class="sect" style="margin-top:10px">Membres validés</div>`+(ok.map(p=>`<div class="aitem"><b><span style="display:inline-block;width:34px;vertical-align:middle">${pet(p.pet||'bunny','happy')}</span> ${esc(p.name)}${p.admin?' 👑':''}</b>
+    <label class="field" style="margin:6px 0">En couple avec <select data-pair="${p.id}">${optPartner(p.partner,p.id)}</select></label>
+    ${p.admin?'':`<button class="soft" data-rm="${p.id}" style="color:#e3405f">🗑️ Retirer</button>`}</div>`).join('')||'<p class="small">Aucun membre validé pour l\'instant.</p>');
+  B.innerHTML=h;
+  B.querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>famAct(ps=>{const p=ps.find(x=>x.id===b.dataset.ok);if(p)p.status='ok';return!!p}));
+  B.querySelectorAll('[data-no]').forEach(b=>b.onclick=()=>famAct(ps=>{const p=ps.find(x=>x.id===b.dataset.no);if(p){p.status='refused';p.partner=null;ps.forEach(x=>{if(x.partner===p.id)x.partner=null})}return!!p}));
+  B.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{if(b.dataset.c)famAct(ps=>{const i=ps.findIndex(x=>x.id===b.dataset.rm);if(i<0)return false;const rm=ps[i];ps.splice(i,1);ps.forEach(x=>{if(x.partner===rm.id)x.partner=null});return true});else{b.dataset.c='1';b.textContent='Sûr ?'}});
+  B.querySelectorAll('[data-pair]').forEach(sel=>sel.onchange=()=>{const id=sel.dataset.pair,pid=sel.value;famAct(ps=>{const p=ps.find(x=>x.id===id);if(!p)return false;
+    if(p.partner){const old=ps.find(x=>x.id===p.partner);if(old&&old.partner===id)old.partner=null}
+    p.partner=pid||null;
+    if(pid){const q=ps.find(x=>x.id===pid);if(q){if(q.partner&&q.partner!==id){const qo=ps.find(x=>x.id===q.partner);if(qo&&qo.partner===pid)qo.partner=null}q.partner=id}}
+    return true})});
+}
+async function famAct(mut){try{const ok=await pushPlayers(mut);if(ok){sfx.buy();renderAdmin()}else toast('Connexion requise')}catch(e){sfx.no();toast('Erreur : '+e.message)}}
 
 /* =========================================================
    Messages d'Ethan (synchronisés via GitHub)
    ========================================================= */
-const MSG_EMPTY=()=>({config:{},victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[],trolls:[]});
+const MSG_EMPTY=()=>({config:{},victoire:{},motDuJour:{},lettres:[],programmes:[],cadeaux:[],mots:[],trolls:[],players:[]});
 let MSG=Object.assign(MSG_EMPTY(),GLS.get('msgcache',{}));
 const isoDay=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function repoInfo(){const c=GLS.get('repo',null);if(c&&c.owner&&c.repo)return c;const h=location.hostname;
@@ -1917,11 +2012,11 @@ function pendingItems(){
   (MSG.lettres||[]).filter(l=>forMe(l)&&unlocked()>l.niveau&&!sn.includes('l'+l.id)).forEach(l=>out.push({t:'letter',x:l}));
   return out;
 }
-function renderInboxBtn(){const b=$('inboxBtn');if(!b)return;if(!SPECIAL){b.style.display='none';return}let n=b.querySelector('.notif');const on=pendingItems().length>0;
+function renderInboxBtn(){const b=$('inboxBtn');if(!b)return;if(!fam()){b.style.display='none';return}let n=b.querySelector('.notif');const on=pendingItems().length>0;
   if(on&&!n){n=document.createElement('span');n.className='notif';b.appendChild(n)}if(!on&&n)n.remove()}
-function checkInbox(){if(!SPECIAL)return;if(ov.classList.contains('show')||$('menu').classList.contains('hidden'))return;const p=pendingItems()[0];if(p){showItem(p);return}
+function checkInbox(){if(!fam())return;if(ov.classList.contains('show')||$('menu').classList.contains('hidden'))return;const p=pendingItems()[0];if(p){showItem(p);return}
   if(typeof shouldAskNotif==='function'&&shouldAskNotif())showNotifAsk()}
-const fromName=()=>{const o=PROFILES.find(p=>p.id!==PROFILE);return o?o.name:''};
+const fromName=()=>{const o=partnerPlayer();return o?o.name:''};
 const deN=n=>/^[aeiouyhéèêàâîôû]/i.test(n)?"d'"+n:'de '+n;
 function paper(title,txt){return `<div class="paper"><div class="ptitle">${esc(title)}</div><div class="ptext">${esc(txt).replace(/\n/g,'<br>')}</div><div class="psign">— ${esc(fromName())} 💗</div></div>`}
 function showItem(p,reread){
@@ -1974,7 +2069,7 @@ function showInbox(){
     else showItem({t:'letter',x:L.find(l=>'l'+l.id===k)},true)});
 }
 function showWrite(){
-  const to=PROFILES.find(p=>p.id!==PROFILE);
+  const to=partnerPlayer();if(!to){toast('Personne à qui écrire 💭');return}
   openModal(`<div class="mtop">${pet(S.pet,'happy')}</div><h2>${letters('Pour '+to.name)}</h2>
     <label class="field"><textarea id="wTxt" rows="5" maxlength="400" placeholder="Écris ton petit mot… 💕" style="font-family:'Caveat',cursive;font-size:24px;line-height:1.15"></textarea></label>
     <p class="small">${esc(to.name)} recevra une notification 🔔</p>
@@ -1999,7 +2094,7 @@ function showWrite(){
    ========================================================= */
 const ADMIN_PIN='2404',ADMIN_PROFILE='ethan';let logoTaps=0,logoT=null;
 document.querySelector('#menu .ttl').addEventListener('click',()=>{logoTaps++;clearTimeout(logoT);logoT=setTimeout(()=>logoTaps=0,2500);
-  if(logoTaps>=7){logoTaps=0;if(PROFILE===ADMIN_PROFILE)showPin();else{sfx.pet(5);bumpPet($('menuPet'));toast('Hihi, rien à voir ici 🙈')}}});
+  if(logoTaps>=7){logoTaps=0;if(isAdmin())showPin();else{sfx.pet(5);bumpPet($('menuPet'));toast('Hihi, rien à voir ici 🙈')}}});
 function showPin(){
   let code='';
   const draw=()=>$('pinDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<code.length?'on':''}"></i>`).join('');
@@ -2017,8 +2112,10 @@ function openAdmin(){go(()=>{showScreen('admin');renderAdmin()});fetchRemote(!!G
 $('admBack').onclick=()=>{sfx.ui();go(()=>{renderMenu();showScreen('menu')})};
 document.querySelectorAll('.atab').forEach(t=>t.onclick=()=>{admTab=t.dataset.a;sfx.ui();renderAdmin()});
 const uid=()=>Date.now().toString(36)+Math.floor(mr()*1e4).toString(36);
-const profOpts=(sel,tous)=>PROFILES.map(p=>`<option value="${p.id}"${sel===p.id?' selected':''}>${esc(p.name)}</option>`).join('')+(tous?`<option value="tous"${sel==='tous'?' selected':''}>Tout le monde</option>`:'');
-const nameOf=id=>id==='tous'?'Tout le monde':(PROFILES.find(p=>p.id===id)||{}).name||id;
+const famList=()=>famApproved().length?famApproved():SPECIAL_PROFILES;
+const defTo=()=>{const a=famApproved();return (a.find(p=>!p.admin)||a[0]||{id:'noellya'}).id};
+const profOpts=(sel,tous)=>famList().map(p=>`<option value="${p.id}"${sel===p.id?' selected':''}>${esc(p.name)}</option>`).join('')+(tous?`<option value="tous"${sel==='tous'?' selected':''}>Tout le monde</option>`:'');
+const nameOf=id=>id==='tous'?'Tout le monde':(famReg().find(p=>p.id===id)||SPECIAL_PROFILES.find(p=>p.id===id)||localProfiles().find(p=>p.id===id)||{}).name||id;
 function admStatus(){const r=repoInfo(),t=GLS.get('token','');
   return r&&t?`<div class="astat ok">🟢 Synchronisé avec ton dépôt privé (${esc(r.owner)}/${esc(r.repo)})</div>`:`<div class="astat">🟡 Pas connecté : les messages restent sur ce téléphone. Va dans ⚙️ Connexion.</div>`}
 async function publish(btn){
@@ -2029,6 +2126,7 @@ async function publish(btn){
 }
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
 function renderAdmin(){
+  if(!famApproved().some(p=>p.id===admTo)){const d=defTo();if(d)admTo=d}
   document.querySelectorAll('.atab').forEach(t=>t.classList.toggle('sel',t.dataset.a===admTab));
   const B=$('admBody');let h=admStatus();
   if(admTab==='msg'){
@@ -2043,7 +2141,7 @@ function renderAdmin(){
       const t=$('aMot').value.trim(),old=MSG.motDuJour[admTo];if(!old||old.texte!==t)MSG.motDuJour[admTo]=t?{texte:t,id:uid()}:{};publish(e.target)};
   }else if(admTab==='letters'){
     h+=`<p class="small">Une lettre se débloque quand le niveau d'Aventure est dépassé.</p>
-      <div class="arow"><select id="lTo">${profOpts('noellya',true)}</select><input id="lLv" type="number" min="1" value="10" style="width:80px"></div>
+      <div class="arow"><select id="lTo">${profOpts(defTo(),true)}</select><input id="lLv" type="number" min="1" value="10" style="width:80px"></div>
       <label class="field"><textarea id="lTxt" rows="3" placeholder="Ta lettre…"></textarea></label><button class="soft abtn" id="lAdd">＋ Ajouter la lettre</button>
       <div class="alist">${(MSG.lettres||[]).sort((a,b)=>a.niveau-b.niveau).map(l=>`<div class="aitem"><b>Niv. ${l.niveau} · ${esc(nameOf(l.pour))}</b><span>${esc(l.texte)}</span><button data-del="${l.id}">🗑️</button></div>`).join('')||'<p class="small">Aucune lettre</p>'}</div>
       <button class="candy abtn" id="aPub">💾 Publier</button>`;
@@ -2053,7 +2151,7 @@ function renderAdmin(){
     $('aPub').onclick=e=>publish(e.target);
   }else if(admTab==='prog'){
     h+=`<p class="small">Le message s'affiche à partir de cette date (anniversaire, Noël…).</p>
-      <div class="arow"><select id="pTo">${profOpts('noellya',true)}</select><input id="pDate" type="date" value="${isoDay()}"></div>
+      <div class="arow"><select id="pTo">${profOpts(defTo(),true)}</select><input id="pDate" type="date" value="${isoDay()}"></div>
       <label class="field"><textarea id="pTxt" rows="3" placeholder="Joyeux anniversaire mon amour 🎂"></textarea></label><button class="soft abtn" id="pAdd">＋ Programmer</button>
       <div class="alist">${(MSG.programmes||[]).sort((a,b)=>a.date<b.date?-1:1).map(p=>`<div class="aitem"><b>📅 ${p.date.split('-').reverse().join('/')} · ${esc(nameOf(p.pour))}</b><span>${esc(p.texte)}</span><button data-del="${p.id}">🗑️</button></div>`).join('')||'<p class="small">Rien de programmé</p>'}</div>
       <button class="candy abtn" id="aPub">💾 Publier</button>`;
@@ -2063,7 +2161,7 @@ function renderAdmin(){
     $('aPub').onclick=e=>publish(e.target);
   }else if(admTab==='gift'){
     const opt=(lbl,arr,f)=>`<optgroup label="${lbl}">${arr.map(i=>`<option value="${i.id}">${esc(f?f(i):i.name)}</option>`).join('')}</optgroup>`;
-    h+=`<div class="arow"><select id="gTo">${profOpts('noellya')}</select><input id="gBer" type="number" min="0" value="50" style="width:90px"> 🍓</div>
+    h+=`<div class="arow"><select id="gTo">${profOpts(defTo())}</select><input id="gBer" type="number" min="0" value="50" style="width:90px"> 🍓</div>
       <label class="field">Objet offert<select id="gItem"><option value="">— Aucun —</option>${opt('Mascottes',PETS.filter(p=>p.id!=='bunny'&&p.id!=='cat'&&p.id!=='panda'))}${opt('Accessoires',ITEMS,i=>i.name+' ('+RAR[i.rar].name+')')}${opt('Effets',FXS.filter(f=>f.price))}${opt('Plateaux',SKINS.filter(s=>s.price))}</select></label>
       <label class="field">Message avec le cadeau<textarea id="gMsg" rows="2" placeholder="Pour toi 💝"></textarea></label>
       <button class="candy abtn" id="gSend">🎁 Envoyer le cadeau</button>
@@ -2091,6 +2189,7 @@ function renderAdmin(){
       if(t==='reset'){if(b.dataset.c){Object.keys(localStorage).filter(k=>k.startsWith('kd-'+PROFILE+'-')).forEach(k=>localStorage.removeItem(k));location.reload()}
         else{b.dataset.c='1';b.textContent='⚠️ Sûr ? Re-tape'}}
     });
+  }else if(admTab==='fam'){renderFam(B,h);
   }else if(admTab==='suivi'){renderSuivi(B,h);
   }else if(admTab==='troll'){renderTrolls(B,h);
   }else if(admTab==='conn'){
@@ -2120,7 +2219,7 @@ function progSnapshot(){
 }
 let progT=null;
 function syncProgress(now){
-  if(!SPECIAL||!PROFILE||!repoInfo()||!GLS.get('token',''))return;
+  if(!fam()||!PROFILE||!repoInfo()||!GLS.get('token',''))return;
   clearTimeout(progT);
   progT=setTimeout(async()=>{
     if(!now&&Date.now()-LS.get('progSync',0)<60000)return;
@@ -2131,7 +2230,7 @@ function syncProgress(now){
 const ago=iso=>{const m=Math.round((Date.now()-new Date(iso))/60000);return m<1?"à l'instant":m<60?`il y a ${m} min`:m<1440?`il y a ${Math.round(m/60)} h`:`il y a ${Math.round(m/1440)} j`};
 async function renderSuivi(B,head){
   B.innerHTML=head+'<p class="small">Chargement…</p>';
-  const cards=await Promise.all(PROFILES.map(async p=>{try{return[p,(await ghFile(`progression/${p.id}.json`)).data]}catch(e){return[p,null]}}));
+  const cards=await Promise.all(famList().map(async p=>{try{return[p,(await ghFile(`progression/${p.id}.json`)).data]}catch(e){return[p,null]}}));
   if(admTab!=='suivi')return;
   B.innerHTML=head+cards.map(([p,d])=>!d?`<div class="suivi"><div class="sh"><b>${esc(p.name)}</b></div><p class="small">Pas encore de données (il faut que son iPhone soit relié et qu'elle joue une fois).</p></div>`
     :`<div class="suivi"><div class="sh"><div class="sp">${pet(d.mascotte||p.def,'happy',d.eq||NOEQ)}</div><div><b>${esc(d.nom||p.name)}</b><small>Dernière partie : ${ago(d.maj)}</small></div></div>
@@ -2155,18 +2254,18 @@ const TROLLS=[
   {id:'fuite',ico:'🏃',name:'Mascotte fugueuse',desc:"Sa mascotte s'enfuit quand elle essaie de la toucher"},
   {id:'reset',ico:'🗑️',name:'Fausse remise à zéro',desc:'« Progression supprimée… Niveau 1 »'}];
 const vengeanceOn=()=>!(MSG.config&&MSG.config.vengeance===false);
-const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id)&&(!t.date||Date.now()-new Date(t.date)<3*864e5)&&(PROFILE!==ADMIN_PROFILE||vengeanceOn()||!t.de||t.de===S.name));
+const pendingTroll=()=>(MSG.trolls||[]).find(t=>t.pour===PROFILE&&!seen().includes('t'+t.id)&&(!t.date||Date.now()-new Date(t.date)<3*864e5)&&(!isAdmin()||vengeanceOn()||!t.de||t.de===S.name));
 let trollT=null;
-function checkTroll(){if(!SPECIAL||!window.__cloudReady)return;const t=pendingTroll();if(!t||trollT)return;
+function checkTroll(){if(!fam()||!window.__cloudReady)return;const t=pendingTroll();if(!t||trollT)return;
   trollT=setTimeout(()=>{trollT=null;if(ov.classList.contains('show')){checkTroll();return}markSeen('t'+t.id);runTroll(t.type,t.de)},1200+mr()*1300)}
 function trollReveal(by){setTimeout(()=>{sfx.win();confetti();
   if(window.__preview){window.__preview=false;toast('Voilà ce qu\'il va subir 😈');setTimeout(showRevenge,1200);return}
   trollBanner(by)},300)}
 function showRevenge(){
-  if(PROFILE!==ADMIN_PROFILE&&!vengeanceOn()){closeModal();sfx.no();openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters('Vengeance bloquée')}</h2>
+  if(!isAdmin()&&!vengeanceOn()){closeModal();sfx.no();openModal(`<div class="mtop">${pet(S.pet,'sad')}</div><h2>${letters('Vengeance bloquée')}</h2>
     <p style="font-weight:600;color:var(--plum2);margin:4px 0 14px">🔒 ${esc(fromName())} a activé son bouclier anti-vengeance… 😇<br>Il est intouchable pour l'instant.</p>
     <div class="mbtns"><button class="candy" id="mOk">Grrr 😤</button></div>`);$('mOk').onclick=()=>{sfx.ui();closeModal()};return}
-  const to=PROFILES.find(p=>p.id!==PROFILE);
+  const to=partnerPlayer();if(!to){sfx.no();toast('Pas de partenaire à piéger');return}
   openModal(`<h2>${letters('Vengeance 😈')}</h2><p class="small" style="margin:4px 0 10px">Choisis ton piège pour ${esc(to.name)}. Il se déclenchera à sa prochaine ouverture du jeu.</p>
     <div class="trolls">${TROLLS.map(t=>`<div class="soft troll"><div class="ti">${t.ico}</div><div class="tt"><b>${t.name}</b><small>${t.desc}</small></div>
       <div class="tb"><button class="soft" data-try="${t.id}">Voir</button><button class="candy" data-send="${t.id}">Piéger</button></div></div>`).join('')}</div>
@@ -2176,7 +2275,7 @@ function showRevenge(){
     setTimeout(()=>{window.__preview=true;runTroll(t,S.name)},350)});
   modal.querySelectorAll('[data-send]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='…';
     const tr={id:uid(),pour:to.id,type:b.dataset.send,de:S.name,date:new Date().toISOString()};
-    try{if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);if(PROFILE!==ADMIN_PROFILE&&data.config&&data.config.vengeance===false){MSG=data;showRevenge();return}data.trolls=[...(data.trolls||[]),tr];await ghWrite('messages.json',data,sha,'😈 vengeance de '+S.name);MSG=data;GLS.set('msgcache',MSG)}
+    try{if(repoInfo()&&GLS.get('token','')){const{data,sha}=await fetchRemote(true);if(!isAdmin()&&data.config&&data.config.vengeance===false){MSG=data;showRevenge();return}data.trolls=[...(data.trolls||[]),tr];await ghWrite('messages.json',data,sha,'😈 vengeance de '+S.name);MSG=data;GLS.set('msgcache',MSG)}
       else throw new Error('jeu pas relié');
       sfx.buy();closeModal();toast(`😈 Piège posé ! ${to.name} ne se doute de rien…`);const r=b.getBoundingClientRect();burst(innerWidth/2,innerHeight/2,{n:24,kinds:['emoji'],chars:['😈','💥','🐸'],speed:8,size:12})}
     catch(e){sfx.no();b.disabled=false;b.textContent='Piéger';toast('Oups : '+e.message)}});
@@ -2307,7 +2406,7 @@ runTroll=function(type,by){
 };
 
 function renderTrolls(B,head){
-  const to=admTo==='ethan'&&PROFILE==='ethan'?'noellya':admTo;
+  const to=famApproved().some(p=>p.id===admTo)?admTo:defTo();
   B.innerHTML=head+`<div class="setrow" style="margin-bottom:8px"><div>🛡️ Bouclier anti-vengeance<small>${vengeanceOn()?'Elle peut se venger':'Ses trolls sont bloqués 😇'}</small></div><button class="sw${vengeanceOn()?'':' on'}" id="vShield"></button></div>
     <label class="field">Victime 😈<select id="tTo">${profOpts(to)}</select></label>
     <p class="small">Le troll se déclenche quelques secondes après sa prochaine ouverture du jeu, une seule fois. Pas de notification, c'est une surprise.</p>
@@ -2430,8 +2529,8 @@ setTimeout(()=>{if(PROFILE&&LS.get('notifOn',false)&&pushOK()&&isApp()&&Notifica
 
 $('inboxBtn').onclick=()=>{sfx.ui();showInbox()};
 // Vérifie les nouveautés pendant que le jeu est ouvert (trolls, mots, cadeaux)
-setInterval(()=>{if(SPECIAL&&PROFILE&&document.visibilityState==='visible')loadMSG()},8000);
-document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('bgpause',document.visibilityState!=='visible');if(SPECIAL&&PROFILE&&document.visibilityState==='visible')loadMSG()});
+setInterval(()=>{if(isLinked()&&PROFILE&&document.visibilityState==='visible')loadMSG()},8000);
+document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('bgpause',document.visibilityState!=='visible');if(isLinked()&&PROFILE&&document.visibilityState==='visible')loadMSG()});
 
 /* démarrage */
 document.body.classList.toggle('lite',S.lite);
@@ -2442,9 +2541,9 @@ document.querySelectorAll('.ttl').forEach(h=>{if(!h.innerHTML)h.innerHTML=[...'K
 if(!PROFILE){$('splash').classList.add('hidden');showPicker()}
 else{let goMenu=false;try{goMenu=!!sessionStorage.getItem('kd-go');sessionStorage.removeItem('kd-go')}catch(e){}
   if(goMenu){renderMenu();showScreen('menu');if(!LS.get('seenRules3',false)){LS.set('seenRules3',true);setTimeout(()=>showRules(true),600)}}}
-$('inboxBtn').style.display=SPECIAL?'':'none';
-if(SPECIAL&&PROFILE)cloudPull();else window.__cloudReady=true;
-if(SPECIAL)loadMSG();
+$('inboxBtn').style.display=fam()?'':'none';
+window.__cloudReady=false;
+if(isLinked())initFamily();else window.__cloudReady=true;
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude|anthropic|usercontent/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
