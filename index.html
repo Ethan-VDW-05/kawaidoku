@@ -614,7 +614,6 @@ body.dark .sw{background:#5a4170}
       </div>
       <div class="petname" id="petName"></div>
     </div>
-    <button class="candy adv" id="resumeBtn" style="display:none;background:linear-gradient(180deg,#8fe3a0,#41c468);box-shadow:0 6px 0 #2fa454;margin-bottom:11px"><div><div class="big">Reprendre ▶</div><div class="sub2 sub3" id="resumeSub" style="font-size:13px;font-weight:600;opacity:.95"></div></div><div class="go">↺</div></button>
     <button class="candy adv" id="advBtn"><div><div class="big">Aventure</div><div class="sub2 sub3" id="advSub" style="font-size:13.5px;font-weight:600;opacity:.95"></div></div><div class="go">▶</div></button>
     <button class="candy mara" id="maraBtn"><div><div class="big">Classique ⭐</div><div id="maraSub" style="font-size:12.5px;font-weight:600;opacity:.95"></div></div><div class="go">▶</div></button>
     <div class="soft notifban" id="notifBanner" style="display:none"><b>🔔</b><span>Un petit rappel chaque matin pour ton défi du jour ?</span>
@@ -684,7 +683,7 @@ body.dark .sw{background:#5a4170}
    Sauvegarde
    ========================================================= */
 const GLS={get(k,d){try{const v=localStorage.getItem('kd-g-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('kd-g-'+k,JSON.stringify(v))}catch(e){}}};
-const BUILD=10;
+const BUILD=11;
 const SPECIAL_PROFILES=[{id:'noellya',name:'Noëllya',def:'bunny'},{id:'ethan',name:'Ethan',def:'cat'}];
 // Les profils du couple (et l'admin, les messages, les trolls, la sauvegarde partagée)
 // n'apparaissent qu'une fois le "mode couple" déverrouillé par le code secret.
@@ -1416,10 +1415,9 @@ function renderBerries(bump){document.querySelectorAll('.bcount').forEach(e=>e.t
   if(bump)document.querySelectorAll('.berry').forEach(e=>{e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')})}
 function renderMenu(){
   renderPets();renderBerries();
-  {const rb=$('resumeBtn'),rs=LS.get('resume',null);if(rb){if(rs&&rs.P){rb.style.display='';const el=$('resumeSub');if(el)el.textContent=(rs.diffName||'Partie en cours')+' · reprendre';}else rb.style.display='none'}}
   $('diffs').innerHTML=DIFFS.map(d=>{const b=LS.get('best'+d.n,null);
     return `<button class="soft diff" data-n="${d.n}" style="--c2:${d.c2};--c3:${d.c3}"><div class="size">${d.n}×${d.n}</div><div class="name">${d.name}</div><span class="best">${b?'🏆 '+fmt(b):'&nbsp;'}</span></button>`}).join('');
-  document.querySelectorAll('.diff').forEach(b=>b.onclick=()=>{sfx.start();go(()=>startGame(+b.dataset.n),b.dataset.n==='10'?'💀 Préparation du cauchemar…':'')});
+  document.querySelectorAll('.diff').forEach(b=>b.onclick=()=>{sfx.start();if(!resumeIf(gidKey('free',+b.dataset.n)))go(()=>startGame(+b.dataset.n),b.dataset.n==='10'?'💀 Préparation du cauchemar…':'')});
   $('gSnd').textContent=S.sound?'🔊':'🔇';
   const w=LS.get('wins',0);$('stats').textContent=w?`🏆 ${w} grille${w>1?'s':''} résolue${w>1?'s':''}`:'';
   document.querySelectorAll('.sub').forEach(e=>e.textContent=subTxt());
@@ -1436,7 +1434,7 @@ $('rulesBtn').onclick=()=>{sfx.ui();showRules()};
 $('setBtn').onclick=()=>{sfx.ui();showSettings()};
 $('themeBtn').onclick=()=>{sfx.ui();showThemes()};
 $('menuBerry').onclick=$('shopBtn').onclick=()=>{sfx.ui();go(()=>{renderShop();showScreen('shop')})};
-$('advBtn').onclick=()=>{sfx.start();go(()=>startLevel(unlocked()))};
+$('advBtn').onclick=()=>{sfx.start();if(!resumeIf(gidKey('adv',unlocked())))go(()=>startLevel(unlocked()))};
 $('mapBtn').onclick=()=>{sfx.ui();go(()=>{renderLevels();showScreen('levels')})};
 $('lvBack').onclick=$('shopBack').onclick=()=>{sfx.ui();go(()=>{renderMenu();showScreen('menu')})};
 function renderLevels(){
@@ -1445,7 +1443,7 @@ function renderLevels(){
     for(let L=B.a;L<=end;L++){const s=stars[L];
       cells+=L>u?`<button class="lv locked">🔒</button>`:`<button class="lv${L===u?' cur':''}" data-l="${L}">${L}<span class="st">${s?'❤️'.repeat(s)+'🤍'.repeat(3-s):'&nbsp;'}</span></button>`}
     return `<div class="band" style="--c1:${B.c1};--c2:${B.c2}"><div class="bandhead"><span>${B.name}</span><small>${B.n}×${B.n} · niv. ${B.a}${B.b===Infinity?'+':'–'+B.b}</small></div><div class="lvgrid">${cells}</div></div>`}).join('');
-  document.querySelectorAll('.lv[data-l]').forEach(b=>b.onclick=()=>{sfx.start();go(()=>startLevel(+b.dataset.l))});
+  document.querySelectorAll('.lv[data-l]').forEach(b=>b.onclick=()=>{sfx.start();if(!resumeIf(gidKey('adv',+b.dataset.l)))go(()=>startLevel(+b.dataset.l))});
   setTimeout(()=>{const c=document.querySelector('.lv.cur');c&&c.scrollIntoView({block:'center'})},30);
 }
 
@@ -1563,7 +1561,7 @@ function renderDaily(){
 function startDaily(){mode='daily';R=seeded(hashStr('kawaidoku-'+dayKey()));const n=[6,7,7,8,7,8,7][new Date().getDay()];let p=null;while(!p)p=generate(n);R=Math.random;
   P=p;diffName='Défi du jour';$('newLbl').textContent='Rejouer';showScreen('game');resetGame();
   setTimeout(()=>{const b=$('frame').getBoundingClientRect();floatText(b.left+b.width/2,b.top+b.height/2,'Défi du jour','#ff6b4a',34)},300)}
-$('dailyBtn').onclick=()=>{sfx.start();go(startDaily)};
+$('dailyBtn').onclick=()=>{sfx.start();if(!resumeIf(gidKey('daily',dayKey())))go(startDaily)};
 const PRIZES=[{t:'10',v:10,w:24,c:'#ffb3c9'},{t:'20',v:20,w:18,c:'#ffd98c'},{t:'🎁',acc:true,w:9,c:'#d6bcff'},{t:'15',v:15,w:22,c:'#a8d4ff'},
   {t:'50',v:50,w:6,c:'#b8e8a4'},{t:'5',v:5,w:10,c:'#ffc49e'},{t:'30',v:30,w:9,c:'#9fe5d8'},{t:'100',v:100,w:2,c:'#ffe066',big:true}];
 function wheelSVG(){const N=PRIZES.length,A=360/N;let g='';
@@ -1721,7 +1719,7 @@ function startClassic(L){const g=genClassic(L);mode='classic';curTrack=g.T;curL=
   setTimeout(()=>{const b=$('frame').getBoundingClientRect();floatText(b.left+b.width/2,b.top+b.height/2-20,g.boss?`💀 BOSS · Niveau ${L}`:`Niveau ${L}`,g.boss?'#e03131':'#ff5d8f',34);if(g.boss){sfx.wrong();anim($('frame'),'shake')}
     setTimeout(()=>{floatText(b.left+b.width/2,b.top+b.height/2+20,`${g.T.ico} ${g.T.name} · ${g.T.n}×${g.T.n}`,g.T.col,26)},350)},300)}
 const clsLabel=L=>L%10===0?'💀 Préparation du boss…':'';
-$('maraBtn').onclick=()=>{sfx.start();go(()=>startClassic(clsLvl()),clsLabel(clsLvl()))};
+$('maraBtn').onclick=()=>{sfx.start();if(!resumeIf(gidKey('classic',clsLvl())))go(()=>startClassic(clsLvl()),clsLabel(clsLvl()))};
 
 /* =========================================================
    Mascotte compagnon (réagit pendant la partie)
@@ -1751,14 +1749,17 @@ function resetGame(){clearResume();const n=P.n;st=Array.from({length:n},()=>Arra
   $('lvl').textContent=diffName;board.classList.remove('dead');$('vig').classList.remove('on');
   buildBoard();renderHearts();render();setBuddy('idle','normal',mpick(['C\'est parti !','On y va ! ✨','Je t\'aide !']));poke();t0=Date.now();clearInterval(timer);timer=setInterval(tick,500);tick()}
 function inGameNow(){return !!P&&!over&&!$('game').classList.contains('hidden')}
-function saveResume(){try{if(!P||over)return;LS.set('resume',{v:1,mode,curL,diffName,newLbl:$('newLbl').textContent,curTrack:curTrack?{id:curTrack.id,gain:curTrack.gain,name:curTrack.name,col:curTrack.col,ico:curTrack.ico}:null,P:{n:P.n,g:P.g,sol:P.sol},st,hearts,hints,combo,comboReward,elapsed:Date.now()-t0})}catch(e){}}
-function clearResume(){LS.set('resume',null)}
-function doResume(){const b=LS.get('resume',null);if(!b||!b.P)return;
+function gidKey(m,id){return 'kres-'+m+'-'+id}
+function curResumeKey(){return gidKey(mode,mode==='free'?P.n:mode==='daily'?dayKey():curL)}
+function saveResume(){try{if(!P||over)return;LS.set(curResumeKey(),{v:1,mode,curL,diffName,newLbl:$('newLbl').textContent,curTrack:curTrack?{id:curTrack.id,gain:curTrack.gain,name:curTrack.name,col:curTrack.col,ico:curTrack.ico}:null,P:{n:P.n,g:P.g,sol:P.sol},st,hearts,hints,combo,comboReward,elapsed:Date.now()-t0})}catch(e){}}
+function clearResume(){try{LS.set(curResumeKey(),null)}catch(e){}}
+function doResume(b){if(!b||!b.P)return;
   mode=b.mode;curL=b.curL||1;diffName=b.diffName||'';if(b.curTrack)curTrack=b.curTrack;
   P={n:b.P.n,g:b.P.g,sol:b.P.sol};$('newLbl').textContent=b.newLbl||'Rejouer';showScreen('game');
   st=b.st.map(r=>[...r]);hearts=b.hearts;hints=b.hints||0;combo=0;comboReward=0;lastOk=0;hist=[];over=false;lastTap=null;
   buildBoard();renderHearts();render();t0=Date.now()-(b.elapsed||0);clearInterval(timer);timer=setInterval(tick,500);tick();
   setBuddy('idle','normal','On reprend ! 💪');poke()}
+function resumeIf(key){const b=LS.get(key,null);if(b&&b.P){go(()=>doResume(b));return true}return false}
 function tick(){if(!over)$('tm').textContent='⏱ '+fmt(Math.floor((Date.now()-t0)/1000))}
 function buildBoard(){const n=P.n,g=P.g,pal=activePalette();P.cmap=regionColors(n,g,pal);$('frame').className='frame sk-'+S.skin;board.style.gridTemplateColumns=`repeat(${n},1fr)`;board.innerHTML='';
   board.classList.remove('intro');void board.offsetWidth;board.classList.add('intro');const GI=1.6,GX=3.2;
@@ -1822,8 +1823,7 @@ board.addEventListener('contextmenu',e=>e.preventDefault());
 $('undoBtn').onclick=()=>{if(over||!hist.length)return;st=hist.pop();lastTap=null;sfx.erase();render()};
 $('clearBtn').onclick=()=>{if(over)return;snap();st=st.map(r=>r.map(v=>v===1?0:v));sfx.erase();render()};
 $('newBtn').onclick=()=>{sfx.start();mode==='free'?go(()=>startGame(P.n)):go(resetGame)};
-$('backBtn').onclick=()=>{sfx.ui();saveResume();over=true;clearInterval(timer);clearTimeout(idleT);$('vig').classList.remove('on');go(()=>{renderMenu();showScreen('menu')})};
-$('resumeBtn').onclick=()=>{sfx.start();go(()=>doResume())};
+$('backBtn').onclick=()=>{sfx.ui();saveResume();over=true;clearInterval(timer);clearTimeout(idleT);$('vig').classList.remove('on');go(()=>{renderMenu();if(mode==='adv'){renderLevels();showScreen('levels')}else showScreen('menu')})};
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&inGameNow())saveResume()});
 window.addEventListener('pagehide',()=>{if(inGameNow())saveResume()});
 $('hintBtn').onclick=()=>{if(over)return;const rows=[...Array(P.n).keys()].filter(r=>st[r][P.sol[r]]!==2);if(!rows.length)return;

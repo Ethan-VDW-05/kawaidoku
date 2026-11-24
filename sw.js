@@ -1,7 +1,7 @@
 // Kawaidoku : permet au jeu de s'ouvrir hors connexion.
 // Le jeu (index.html) est toujours rechargé depuis Internet quand c'est possible,
 // pour que les mises à jour arrivent tout de suite.
-const CACHE = 'kawaidoku-v9';
+const CACHE = 'kawaidoku-v10';
 const FILES = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png', './version.json'];
 
 self.addEventListener('install', e => {
