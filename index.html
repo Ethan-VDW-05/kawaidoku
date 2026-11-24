@@ -428,7 +428,7 @@ body.dark .tile{filter:brightness(.9) saturate(.95)}
 .cell.press .tile{transform:scale(.88);filter:brightness(.93)}
 .cell.hold .tile{animation:hold .38s linear forwards}
 @keyframes hold{to{transform:scale(.8);filter:brightness(1.1)}}
-.tile .x{width:54%;height:54%;animation:xin .32s cubic-bezier(.3,1.9,.5,1) backwards;filter:drop-shadow(0 1px 1px rgba(91,53,80,.18))}
+.tile .x{width:47%;height:47%;animation:xin .32s cubic-bezier(.3,1.9,.5,1) backwards;filter:drop-shadow(0 1px 1px rgba(91,53,80,.15))}
 @keyframes xin{from{transform:scale(0) rotate(-120deg);opacity:0}}
 .bw{position:relative;width:88%;height:88%;animation:dance 2.3s ease-in-out infinite;will-change:transform}
 .bw::after{content:'';position:absolute;left:18%;right:18%;bottom:0;height:12%;border-radius:50%;background:rgba(91,53,80,.2);z-index:-1}
@@ -440,6 +440,15 @@ body.dark .tile{filter:brightness(.9) saturate(.95)}
 #rotate .rotmsg{font-weight:800;font-size:23px;color:#b0396f;line-height:1.55}
 #rotate .rotmsg small{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.8}
 @media (orientation:landscape) and (max-height:520px){#rotate{display:flex}}
+#menuPet{perspective:640px}
+.pet25{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:p25 5s ease-in-out infinite;will-change:transform}
+.pet25 .petsvg{width:100%;height:100%;filter:drop-shadow(0 10px 11px rgba(91,53,80,.26))}
+.pet25sh{position:absolute;left:50%;bottom:-3%;width:58%;height:11%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(91,53,80,.22),transparent 70%);border-radius:50%;z-index:-1;animation:p25sh 5s ease-in-out infinite}
+.pet25.spin{animation:p25spin 1s cubic-bezier(.4,.08,.2,1)}
+@keyframes p25{0%,100%{transform:rotateY(-17deg) rotateX(5deg) translateY(3%)}50%{transform:rotateY(17deg) rotateX(5deg) translateY(-6%)}}
+@keyframes p25sh{0%,100%{transform:translateX(-50%) scale(.92);opacity:.6}50%{transform:translateX(-50%) scale(1.06);opacity:.85}}
+@keyframes p25spin{0%{transform:rotateY(0) scale(1)}45%{transform:rotateY(190deg) scale(1.06)}100%{transform:rotateY(360deg) scale(1)}}
+body.lite .pet25,body.lite .pet25sh{animation:none}
 .bw.jump{animation:jump .75s cubic-bezier(.3,1.5,.5,1)}
 @keyframes jump{0%{transform:scale(1)}20%{transform:scale(1.25,.75)}50%{transform:translateY(-50%) scale(.88,1.15) rotate(-10deg)}80%{transform:scale(1.18,.82)}100%{transform:scale(1)}}
 .tile.wrong::after{content:'';position:absolute;inset:0;border-radius:inherit;background:rgba(255,40,80,.6);animation:fade .65s forwards}
@@ -553,7 +562,6 @@ body.dark .sw{background:#5a4170}
 .th.sel{box-shadow:0 0 0 3px var(--pink),0 4px 0 rgba(91,53,80,.13)}
 .th.wide{grid-column:1/-1}
 </style>
-<script src="three.min.js"></script>
 </head>
 <body>
 <div id="rotate"><div class="rotmsg">📱 ↻<br>Tourne ton téléphone<br><small>Kawaidoku se joue à la verticale 💞</small></div></div>
@@ -1141,7 +1149,7 @@ function pet(type=S.pet,mood='normal',eq=curAccs()){
     ${eyes}${nose}${mouth}${top}${ACC[eq.neck]||''}${ACC[eq.face]||''}${ACC[eq.head]||''}</svg>`;
 }
 const HEART=(fill='#ff4d7d')=>`<svg viewBox="0 0 40 40"><path d="M20 35 C8 26 3 19 3 12.5 C3 7 7.5 3.5 12 3.5 C15.5 3.5 18.5 5.5 20 8.5 C21.5 5.5 24.5 3.5 28 3.5 C32.5 3.5 37 7 37 12.5 C37 19 32 26 20 35Z" fill="${fill}" stroke="#5b3550" stroke-width="2.6" stroke-linejoin="round"/><ellipse cx="11.5" cy="11" rx="4" ry="2.5" fill="#fff" opacity=".6" transform="rotate(-30 11.5 11)"/></svg>`;
-const XSVG=`<svg class="x" viewBox="0 0 24 24"><g fill="none" stroke-linecap="round"><path d="M7 7L17 17M17 7L7 17" stroke="#fff" stroke-width="6.4" opacity=".72"/><path d="M7 7L17 17M17 7L7 17" stroke="#d98ab8" stroke-width="4.1"/><path d="M7 7L17 17M17 7L7 17" stroke="#a85690" stroke-width="1.6" opacity=".55"/></g><circle cx="12" cy="12" r="2.1" fill="#fff"/><circle cx="12" cy="12" r="1.15" fill="#ff9ecb"/><path d="M18.4 6.2 l.5 1.3 l1.3 .5 l-1.3 .5 l-.5 1.3 l-.5 -1.3 l-1.3 -.5 l1.3 -.5z" fill="#fff" opacity=".9"/></svg>`;
+const XSVG=`<svg class="x" viewBox="0 0 24 24"><g fill="none" stroke-linecap="round"><path d="M7 7L17 17M17 7L7 17" stroke="#fff" stroke-width="3.6" opacity=".6"/><path d="M7 7L17 17M17 7L7 17" stroke="#c77fac" stroke-width="2.1"/></g></svg>`;
 const STAR=c=>`<svg viewBox="0 0 30 30"><path d="M15 2 L18.5 10.5 L27.5 11.2 L20.6 17 L22.8 26 L15 21.2 L7.2 26 L9.4 17 L2.5 11.2 L11.5 10.5Z" fill="${c}" stroke="#5b3550" stroke-width="2" stroke-linejoin="round"/></svg>`;
 
 /* =========================================================
@@ -1380,13 +1388,13 @@ M3D.setAcc=function(eq){if(!this.grp||!window.THREE)return;const T=THREE;eq=eq||
 M3D.stop=function(){this.on=false;if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.curPet=null;try{if(this.r){this.r.dispose();this.r.forceContextLoss&&this.r.forceContextLoss();this.r=null}}catch(e){}};
 const use3D=()=>S.d3&&!S.lite&&!!window.THREE;
 function renderPets(){const sp=$('menuPet');
-  if(use3D()){if(!(M3D.on&&M3D.curPet===S.pet)){if(!M3D.start(sp,S.pet)){M3D.stop();sp.innerHTML=pet()}}else{try{M3D.setAcc(curAccs())}catch(e){}}}
-  else{M3D.stop();sp.innerHTML=pet()}
+  if(S.d3&&!S.lite)sp.innerHTML=`<div class="pet25">${pet()}<div class="pet25sh"></div></div>`;
+  else sp.innerHTML=pet();
   $('splashPet').innerHTML=pet();const p=PETS.find(p=>p.id===S.pet);$('petName').innerHTML=`${p.name}<small>${p.desc}</small>`}
 function cyclePet(d){const L=ownedPets(),i=L.findIndex(p=>p.id===S.pet);S.pet=L[(i+d+L.length)%L.length].id;saveS();renderPets();
   sfx.pet(3+d);bumpPet($('menuPet'));const b=$('menuPet').getBoundingClientRect();burst(b.left+b.width/2,b.top+b.height/2,{n:14,kinds:['heart','star'],size:10})}
 $('petPrev').onclick=()=>cyclePet(-1);$('petNext').onclick=()=>cyclePet(1);
-$('menuPet').onclick=e=>{sfx.pet(rnd(6));burst(e.clientX,e.clientY,{n:12,kinds:['heart']});if(M3D.on)M3D.tap();else bumpPet($('menuPet'))};
+$('menuPet').onclick=e=>{sfx.pet(rnd(6));burst(e.clientX,e.clientY,{n:12,kinds:['heart']});const w=$('menuPet').querySelector('.pet25');if(w){w.classList.remove('spin');void w.offsetWidth;w.classList.add('spin');w.addEventListener('animationend',()=>w.classList.remove('spin'),{once:true})}else bumpPet($('menuPet'))};
 function renderBerries(bump){document.querySelectorAll('.bcount').forEach(e=>e.textContent=S.berries);
   if(bump)document.querySelectorAll('.berry').forEach(e=>{e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')})}
 function renderMenu(){
@@ -1868,7 +1876,7 @@ function swRow(key,label,sub){return `<div class="setrow"><div>${label}${sub?`<s
 function showSettings(){
   openModal(`<h2>${letters('Réglages')}</h2>
     ${swRow('sound','🔊 Sons')}${swRow('music','🎵 Musique douce')}${swRow('auto','✨ Croix auto','Après une bonne mascotte')}
-    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${swRow('vibrate','📳 Vibrations','Quand on pose un ✕ ou un animal (Android — l\'iPhone ne vibre pas en web)')}${swRow('voice','🔊 Voix','Dit « bravo, super... » quand tu trouves un animal')}${swRow('d3','🧸 Perso en 3D','Joli mais peut ralentir les vieux téléphones · sans accessoires')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
+    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${swRow('vibrate','📳 Vibrations','Quand on pose un ✕ ou un animal (Android — l\'iPhone ne vibre pas en web)')}${swRow('voice','🔊 Voix','Dit « bravo, super... » quand tu trouves un animal')}${swRow('d3','🧸 Perso en relief','Ton animal avec effet de volume et rotation sur l\'accueil')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
     <div style="height:12px"></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mWho">👤 Changer de joueur</button></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mTheme">🎨 Thèmes</button><button class="soft" id="mLove">💌 Prénom & mot</button></div>
