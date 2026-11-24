@@ -683,7 +683,7 @@ body.dark .sw{background:#5a4170}
    Sauvegarde
    ========================================================= */
 const GLS={get(k,d){try{const v=localStorage.getItem('kd-g-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('kd-g-'+k,JSON.stringify(v))}catch(e){}}};
-const BUILD=8;
+const BUILD=9;
 const SPECIAL_PROFILES=[{id:'noellya',name:'Noëllya',def:'bunny'},{id:'ethan',name:'Ethan',def:'cat'}];
 // Les profils du couple (et l'admin, les messages, les trolls, la sauvegarde partagée)
 // n'apparaissent qu'une fois le "mode couple" déverrouillé par le code secret.
@@ -1946,6 +1946,10 @@ function showPicker(){
   const list=pickerProfiles();
   $('whoTitle').textContent=list.length?'Qui joue ?':(isLinked()?'Rejoindre la famille ✨':'Bienvenue !');
   $('whoSub').textContent=list.length?'Chacun garde sa progression':'Crée ton joueur pour commencer ✨';
+  {const t0=$('whoTitle');t0.onclick=()=>{whoTaps++;clearTimeout(whoT);whoT=setTimeout(()=>whoTaps=0,2000);if(whoTaps>=7){whoTaps=0;coupleUnlock()}};}
+  const _pk=JSON.stringify(list.map(p=>[p.id,p.name,p.def,profData(p.id,'pet',p.def),profData(p.id,'lvl',1),profData(p.id,'berries',25),profData(p.id,'clsLvl',1)]))+'|'+isLinked();
+  if(showPicker._k===_pk&&$('whoList').children.length)return;
+  showPicker._k=_pk;
   let html=list.map(p=>{
     const petId=profData(p.id,'pet',p.def),eq=profData(p.id,'eq',null)||NOEQ;
     const lvl=profData(p.id,'lvl',1),ber=profData(p.id,'berries',25),cl=profData(p.id,'clsLvl',1);
