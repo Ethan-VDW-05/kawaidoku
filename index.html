@@ -428,7 +428,7 @@ body.dark .tile{filter:brightness(.9) saturate(.95)}
 .cell.press .tile{transform:scale(.88);filter:brightness(.93)}
 .cell.hold .tile{animation:hold .38s linear forwards}
 @keyframes hold{to{transform:scale(.8);filter:brightness(1.1)}}
-.tile .x{width:40%;height:40%;animation:xin .32s cubic-bezier(.3,1.9,.5,1) backwards;filter:drop-shadow(0 1px 1px rgba(91,53,80,.14))}
+.tile .x{width:45%;height:45%;animation:xin .32s cubic-bezier(.3,1.9,.5,1) backwards;filter:drop-shadow(0 1px 1px rgba(91,53,80,.14))}
 @keyframes xin{from{transform:scale(0) rotate(-120deg);opacity:0}}
 .bw{position:relative;width:88%;height:88%;animation:dance 2.3s ease-in-out infinite;will-change:transform}
 .bw::after{content:'';position:absolute;left:18%;right:18%;bottom:0;height:12%;border-radius:50%;background:rgba(91,53,80,.2);z-index:-1}
@@ -1219,8 +1219,9 @@ function startMusic(){if(!AC||musicTimer)return;musicGain.gain.cancelScheduledVa
     nextT+=spb;step++}},100)}
 function restartMusic(){if(musicTimer&&musicTheme!==activeTheme()){clearInterval(musicTimer);musicTimer=null;startMusic()}}
 function stopMusic(){clearInterval(musicTimer);musicTimer=null;if(AC)musicGain.gain.setTargetAtTime(0,AC.currentTime,.25)}
-let _hapEl=null;
-function iosHaptic(){try{if(!_hapEl){const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.cssText='position:absolute;left:-9999px;width:0;height:0;opacity:0;pointer-events:none';const i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');l.appendChild(i);(document.body||document.documentElement).appendChild(l);_hapEl=i}_hapEl.click()}catch(e){}}
+let _hapLabel=null;
+function iosHaptic(){try{if(!_hapLabel){const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.cssText='position:fixed;bottom:-30px;left:-30px;width:2px;height:2px;z-index:-1';const i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');l.appendChild(i);(document.body||document.documentElement).appendChild(l);_hapLabel=l}_hapLabel.click()}catch(e){}}
+try{document.addEventListener('pointerdown',function pr(){iosHaptic&&!navigator.vibrate&&iosHaptic();document.removeEventListener('pointerdown',pr)},{once:true,passive:true})}catch(e){}
 const buzz=ms=>{try{if(S.vibrate===false)return;if(navigator.vibrate)navigator.vibrate(ms);else iosHaptic()}catch(e){}};
 /* ---- Voix (synthèse maintenant ; emplacement pour les vraies voix d'Ethan plus tard) ---- */
 const VOICE_LINES={good:['Bravo','Super','Excellent','Bien joué','Trop bien','Génial','Parfait','Magnifique','Youpi'],combo:['Combo','Trop fort','En feu','Enchaîne'],win:['Bravo, tu as gagné','Niveau réussi','Magnifique, bravo']};
