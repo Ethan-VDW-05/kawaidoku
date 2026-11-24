@@ -553,6 +553,7 @@ body.dark .sw{background:#5a4170}
 .th.sel{box-shadow:0 0 0 3px var(--pink),0 4px 0 rgba(91,53,80,.13)}
 .th.wide{grid-column:1/-1}
 </style>
+<script src="three.min.js"></script>
 </head>
 <body>
 <div id="rotate"><div class="rotmsg">📱 ↻<br>Tourne ton téléphone<br><small>Kawaidoku se joue à la verticale 💞</small></div></div>
@@ -699,7 +700,7 @@ const S={sound:LS.get('sound',true),music:LS.get('music',false),auto:LS.get('aut
   name:LS.get('name','')||PROF.name,msg:LS.get('msg',''),pet:LS.get('pet',PROF.def),
   dark:LS.get('dark',false),theme:LS.get('theme','auto'),themeAcc:LS.get('themeAcc',true),
   berries:LS.get('berries',25),owned:LS.get('owned',['bunny','cat','panda','none','pastel']),skin:LS.get('skin','pastel'),
-  eq:LS.get('eq',null)||{head:'none',face:'none',neck:'none'},fx:LS.get('fx','hearts'),weather:LS.get('weather',true),lite:LS.get('lite',false),daynight:LS.get('daynight',true),vibrate:LS.get('vibrate',true)};
+  eq:LS.get('eq',null)||{head:'none',face:'none',neck:'none'},fx:LS.get('fx','hearts'),weather:LS.get('weather',true),lite:LS.get('lite',false),daynight:LS.get('daynight',true),vibrate:LS.get('vibrate',true),voice:LS.get('voice',true),d3:LS.get('d3',true)};
 const saveS=()=>{for(const k in S)LS.set(k,S[k])};
 let R=Math.random;
 function seeded(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -1210,6 +1211,18 @@ function startMusic(){if(!AC||musicTimer)return;musicGain.gain.cancelScheduledVa
 function restartMusic(){if(musicTimer&&musicTheme!==activeTheme()){clearInterval(musicTimer);musicTimer=null;startMusic()}}
 function stopMusic(){clearInterval(musicTimer);musicTimer=null;if(AC)musicGain.gain.setTargetAtTime(0,AC.currentTime,.25)}
 const buzz=ms=>{try{if(S.vibrate!==false&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
+/* ---- Voix (synthèse maintenant ; emplacement pour les vraies voix d'Ethan plus tard) ---- */
+const VOICE_LINES={good:['Bravo','Super','Excellent','Bien joué','Trop bien','Génial','Parfait','Magnifique','Youpi'],combo:['Combo','Trop fort','En feu','Enchaîne'],win:['Bravo, tu as gagné','Niveau réussi','Magnifique, bravo']};
+// Pour mettre TES voix plus tard : ajoute des fichiers audio et remplis CUSTOM_VOICE, ex :
+// CUSTOM_VOICE.good=['voix/bravo.mp3','voix/super.mp3']; (ils seront joués à la place de la voix robot)
+const CUSTOM_VOICE={good:[],combo:[],win:[]};
+function pickFrVoice(){if(!('speechSynthesis'in window))return null;const v=speechSynthesis.getVoices()||[];return v.find(x=>/fr/i.test(x.lang)&&/(Amelie|Audrey|Marie|Thomas|Google fran)/i.test(x.name))||v.find(x=>/fr/i.test(x.lang))||null}
+function say(kind){if(S.voice===false)return;try{
+  const cu=CUSTOM_VOICE[kind];if(cu&&cu.length){const a=new Audio(cu[Math.floor(Math.random()*cu.length)]);a.volume=.9;a.play().catch(()=>{});return}
+  if(!('speechSynthesis'in window))return;if(speechSynthesis.speaking&&kind!=='win')return;if(kind==='win')speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(mpick(VOICE_LINES[kind]||VOICE_LINES.good));u.lang='fr-FR';u.rate=1.08;u.pitch=1.4;const fv=pickFrVoice();if(fv)u.voice=fv;speechSynthesis.speak(u);
+}catch(e){}}
+try{if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
 addEventListener('pointerdown',ensureAudio,{passive:true});
 
 /* =========================================================
@@ -1314,11 +1327,52 @@ $('splash').addEventListener('click',()=>{ensureAudio();sfx.start();burst(innerW
 function bumpPet(el){const s=el.querySelector('.petsvg');if(!s)return;
   s.animate([{transform:'scale(1)'},{transform:'scale(1.25,.75)'},{transform:'scale(.88,1.15) translateY(-14px)'},{transform:'scale(1)'}],{duration:520,easing:'cubic-bezier(.3,1.5,.5,1)'})}
 const ownedPets=()=>PETS.filter(p=>S.owned.includes(p.id));
-function renderPets(){$('menuPet').innerHTML=pet();$('splashPet').innerHTML=pet();const p=PETS.find(p=>p.id===S.pet);$('petName').innerHTML=`${p.name}<small>${p.desc}</small>`}
+const M3D={on:false,r:null,scene:null,cam:null,grp:null,raf:0,spin:0,spinV:0,bob:0,curPet:null,host:null};
+M3D.cfg=id=>({bunny:{body:'#fff1f6',ear:'tall',inner:'#ffcfe2'},cat:{body:'#ffe0b2',ear:'tri',inner:'#ffb3c9'},panda:{body:'#ffffff',ear:'round',inner:'#36343a',patch:true},bear:{body:'#d8a56a',ear:'round',inner:'#b07d45'},fox:{body:'#ff9f5a',ear:'tri',inner:'#ffffff'},dog:{body:'#f2d2a6',ear:'round',inner:'#c99b63'},penguin:{body:'#4a5568',ear:'round',inner:'#2d333f',patch:true},frog:{body:'#9fe06a',ear:'round',inner:'#7cc248'},pig:{body:'#ffc2d6',ear:'tri',inner:'#ff9ec2'}}[id]||{body:'#ffc4dd',ear:'round',inner:'#fff0f6'});
+M3D.build=function(c){const T=THREE,g=new T.Group();
+  const mat=col=>{const cc=new T.Color(col);return new T.MeshStandardMaterial({color:cc,emissive:cc.clone().multiplyScalar(.2),roughness:.68,metalness:0})};
+  const body=new T.Mesh(new T.SphereGeometry(1,40,32),mat(c.body));body.scale.set(1,1.12,.98);g.add(body);
+  const earMat=mat(c.body),inMat=mat(c.inner);
+  const ear=x=>{let e;if(c.ear==='tall'){e=new T.Mesh(new T.CapsuleGeometry(.22,.72,8,16),earMat);e.position.set(x*.42,1.18,0);e.rotation.z=x*.16;const i=new T.Mesh(new T.CapsuleGeometry(.1,.52,6,12),inMat);i.position.set(0,0,.12);e.add(i)}
+    else if(c.ear==='tri'){e=new T.Mesh(new T.ConeGeometry(.34,.56,20),earMat);e.position.set(x*.6,.95,0);e.rotation.z=x*-.1;const i=new T.Mesh(new T.ConeGeometry(.17,.33,16),inMat);i.position.set(0,-.03,.12);e.add(i)}
+    else{e=new T.Mesh(new T.SphereGeometry(.34,24,20),c.patch?inMat:earMat);e.position.set(x*.64,.9,0)}return e};
+  g.add(ear(-1),ear(1));
+  const eyeMat=new T.MeshStandardMaterial({color:0x3a2630,roughness:.25});
+  const eye=x=>{const e=new T.Mesh(new T.SphereGeometry(.12,16,16),eyeMat);e.position.set(x*.33,.14,.9);return e};
+  if(c.patch){const pm=mat(c.inner);[-1,1].forEach(x=>{const p=new T.Mesh(new T.SphereGeometry(.27,20,16),pm);p.scale.set(1,1.25,.45);p.position.set(x*.34,.1,.76);g.add(p)})}
+  g.add(eye(-1),eye(1));
+  const hl=x=>{const e=new T.Mesh(new T.SphereGeometry(.045,10,10),new T.MeshStandardMaterial({color:0xffffff,roughness:.2,emissive:0x999999}));e.position.set(x*.33+.04,.19,1.0);return e};
+  g.add(hl(-1),hl(1));
+  const chk=new T.MeshStandardMaterial({color:0xff9ec2,roughness:.6,transparent:true,opacity:.75});
+  [-1,1].forEach(x=>{const k=new T.Mesh(new T.SphereGeometry(.15,16,16),chk);k.scale.set(1,.72,.45);k.position.set(x*.56,-.08,.82);g.add(k)});
+  const nose=new T.Mesh(new T.SphereGeometry(.075,12,12),new T.MeshStandardMaterial({color:0xd56a8e,roughness:.4}));nose.position.set(0,-.04,1.03);g.add(nose);
+  return g};
+M3D.start=function(host,petId){if(!window.THREE)return false;const T=THREE;this.stop();this.host=host;host.innerHTML='';
+  const w=host.clientWidth||150,h=host.clientHeight||w;
+  let r;try{r=new T.WebGLRenderer({alpha:true,antialias:true})}catch(e){return false}
+  r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(w,h,false);r.domElement.style.width='100%';r.domElement.style.height='100%';r.domElement.style.display='block';host.appendChild(r.domElement);
+  const scene=new T.Scene(),cam=new T.PerspectiveCamera(42,w/h,.1,20);cam.position.set(0,.15,5.1);
+  scene.add(new T.AmbientLight(0xffffff,1.05));const d=new T.DirectionalLight(0xffffff,.9);d.position.set(2,4,4);scene.add(d);
+  const d2=new T.DirectionalLight(0xffd9ec,.45);d2.position.set(-3,-1,2);scene.add(d2);
+  const grp=this.build(this.cfg(petId));scene.add(grp);
+  this.r=r;this.scene=scene;this.cam=cam;this.grp=grp;this.on=true;this.curPet=petId;this.spin=0;this.spinV=0;this.bob=0;
+  const loop=()=>{if(!this.on)return;this.raf=requestAnimationFrame(loop);
+    if(document.hidden||$('menu').classList.contains('hidden'))return;
+    this.bob+=.035;this.spinV*=.92;this.spin+=this.spinV;
+    grp.rotation.y=Math.sin(this.bob*.5)*.35+this.spin;grp.position.y=Math.sin(this.bob)*.06-.08;grp.rotation.z=Math.sin(this.bob*.7)*.04;
+    r.render(scene,cam)};
+  loop();return true};
+M3D.tap=function(){this.spinV+=.55;this.bob+=.3};
+M3D.stop=function(){this.on=false;if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.curPet=null;try{if(this.r){this.r.dispose();this.r.forceContextLoss&&this.r.forceContextLoss();this.r=null}}catch(e){}};
+const use3D=()=>S.d3&&!S.lite&&!!window.THREE;
+function renderPets(){const sp=$('menuPet');
+  if(use3D()){if(!(M3D.on&&M3D.curPet===S.pet)){if(!M3D.start(sp,S.pet)){M3D.stop();sp.innerHTML=pet()}}}
+  else{M3D.stop();sp.innerHTML=pet()}
+  $('splashPet').innerHTML=pet();const p=PETS.find(p=>p.id===S.pet);$('petName').innerHTML=`${p.name}<small>${p.desc}</small>`}
 function cyclePet(d){const L=ownedPets(),i=L.findIndex(p=>p.id===S.pet);S.pet=L[(i+d+L.length)%L.length].id;saveS();renderPets();
   sfx.pet(3+d);bumpPet($('menuPet'));const b=$('menuPet').getBoundingClientRect();burst(b.left+b.width/2,b.top+b.height/2,{n:14,kinds:['heart','star'],size:10})}
 $('petPrev').onclick=()=>cyclePet(-1);$('petNext').onclick=()=>cyclePet(1);
-$('menuPet').onclick=e=>{sfx.pet(rnd(6));burst(e.clientX,e.clientY,{n:12,kinds:['heart']});bumpPet($('menuPet'))};
+$('menuPet').onclick=e=>{sfx.pet(rnd(6));burst(e.clientX,e.clientY,{n:12,kinds:['heart']});if(M3D.on)M3D.tap();else bumpPet($('menuPet'))};
 function renderBerries(bump){document.querySelectorAll('.bcount').forEach(e=>e.textContent=S.berries);
   if(bump)document.querySelectorAll('.berry').forEach(e=>{e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')})}
 function renderMenu(){
@@ -1692,7 +1746,7 @@ function placePet(r,c){if(over)return;const[x,y,w]=center(r,c);
   if(combo>=3)for(const[th,rw]of[[12,10],[9,7],[7,5],[5,3],[3,2]])if(combo>=th&&comboReward<th){comboReward=th;earn(rw);renderBerries(true);floatText(x,y-w*.85,`+${rw} 🍓 combo !`,'#ff9f1c',22);break}
   const placed=st.flat().filter(v=>v===2).length;sfx.land();sfx.pet(placed-1+Math.min(combo-1,3));buzz(22);
   setTimeout(()=>{ring(x,y,w*.7);petBurst(x,y,w);anim($('frame'),'punch')},200);
-  floatText(x,y-w*.3,combo>=3?`Combo x${combo} !`:mpick(WORDS),combo>=3?'#b98cff':'#ff5d8f',combo>=3?28:24);beams(r,c);
+  floatText(x,y-w*.3,combo>=3?`Combo x${combo} !`:mpick(WORDS),combo>=3?'#b98cff':'#ff5d8f',combo>=3?28:24);beams(r,c);say(combo>=3?'combo':'good');
   const n=P.n,id=P.g[r][c];
   for(let a=0;a<n;a++)for(let b=0;b<n;b++)if(P.g[a][b]===id){const t=tileEl(a,b);t.style.animationDelay=(Math.hypot(a-r,b-c)*50)+'ms';anim(t,'glow');setTimeout(()=>{t.classList.remove('glow');t.style.animationDelay=''},900)}
   if(S.auto){const list=[];for(let a=0;a<n;a++)for(let b=0;b<n;b++){if((a===r&&b===c)||st[a][b]!==0)continue;
@@ -1752,7 +1806,7 @@ function win(){
     setTimeout(()=>{if(!bw)return;anim(bw,'jump');const[x,y,w]=center(r,P.sol[r]);burst(x,y,{n:8,kinds:['heart','star'],size:w/5,speed:4});tone(PENTA[r%PENTA.length],{dur:.2,type:'triangle',vol:.1})},r*90)}
   setTimeout(()=>{for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(st[r][c]!==2){const t=tileEl(r,c);t.innerHTML='';t.style.animationDelay=((r+c)*35)+'ms';t.classList.add('won')}},n*90+200);
   setTimeout(()=>{
-    sfx.win();confetti();buzz([30,50,30,50,80]);
+    sfx.win();confetti();buzz([30,50,30,50,80]);say('win');
     const stars=[0,1,2].map(i=>`<span>${STAR(i<hearts?'#ffc94d':'#eadde3')}</span>`).join('');
     openModal(`<div class="mtop"><div class="rays"></div>${pet(S.pet,'happy')}</div>
       <h2>${letters(S.name?`Bravo ${S.name} !`:'Bravo !')}</h2>
@@ -1800,7 +1854,7 @@ function swRow(key,label,sub){return `<div class="setrow"><div>${label}${sub?`<s
 function showSettings(){
   openModal(`<h2>${letters('Réglages')}</h2>
     ${swRow('sound','🔊 Sons')}${swRow('music','🎵 Musique douce')}${swRow('auto','✨ Croix auto','Après une bonne mascotte')}
-    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${swRow('vibrate','📳 Vibrations','Quand on pose un ✕ ou un animal (Android — l\'iPhone ne vibre pas en web)')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
+    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${swRow('vibrate','📳 Vibrations','Quand on pose un ✕ ou un animal (Android — l\'iPhone ne vibre pas en web)')}${swRow('voice','🔊 Voix','Dit « bravo, super... » quand tu trouves un animal')}${swRow('d3','🧸 Perso en 3D','Joli mais peut ralentir les vieux téléphones · sans accessoires')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
     <div style="height:12px"></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mWho">👤 Changer de joueur</button></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mTheme">🎨 Thèmes</button><button class="soft" id="mLove">💌 Prénom & mot</button></div>
@@ -1808,7 +1862,7 @@ function showSettings(){
   modal.classList.add('nopet');
   modal.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{const k=b.dataset.k;S[k]=!S[k];saveS();b.classList.toggle('on',S[k]);sfx.ui();
     if(k==='music'){ensureAudio();S.music?startMusic():stopMusic()}
-    if(k==='dark'||k==='themeAcc'||k==='daynight'){applyLook();renderMenu()}if(k==='weather')setWeather();if(k==='lite'){document.body.classList.toggle('lite',S.lite);applyLook();setWeather()}if(k==='auto'||k==='sound')renderMenu()});
+    if(k==='dark'||k==='themeAcc'||k==='daynight'){applyLook();renderMenu()}if(k==='weather')setWeather();if(k==='lite'){document.body.classList.toggle('lite',S.lite);applyLook();setWeather()}if(k==='auto'||k==='sound')renderMenu();if(k==='d3')renderPets()});
   if($('swNotif'))$('swNotif').onclick=e=>{const on=!LS.get('notifOn',false);e.target.classList.toggle('on',on);sfx.ui();if(on&&Notification.permission!=='granted')enableReminders();else setDaily(on)};
   $('mWho').onclick=()=>{switchPlayer()};
   $('mTheme').onclick=()=>{sfx.ui();showThemes()};$('mLove').onclick=()=>{sfx.ui();showLove()};
