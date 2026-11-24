@@ -430,11 +430,16 @@ body.dark .tile{filter:brightness(.9) saturate(.95)}
 @keyframes hold{to{transform:scale(.8);filter:brightness(1.1)}}
 .tile .x{width:38%;height:38%;animation:xin .32s cubic-bezier(.3,1.9,.5,1) backwards}
 @keyframes xin{from{transform:scale(0) rotate(-120deg);opacity:0}}
-.bw{position:relative;width:88%;height:88%;animation:idle 2.4s ease-in-out infinite;will-change:transform}
+.bw{position:relative;width:88%;height:88%;animation:dance 2.3s ease-in-out infinite;will-change:transform}
 .bw::after{content:'';position:absolute;left:18%;right:18%;bottom:0;height:12%;border-radius:50%;background:rgba(91,53,80,.2);z-index:-1}
 .bw svg{width:100%;height:100%;display:block;animation:drop .55s cubic-bezier(.25,1.6,.45,1)}
 @keyframes drop{0%{transform:translateY(-140%) scale(.6);opacity:0}45%{transform:translateY(0) scale(1.3,.72);opacity:1}70%{transform:scale(.9,1.12)}100%{transform:scale(1)}}
 @keyframes idle{0%,100%{transform:scale(1,1)}50%{transform:scale(1.04,.96) translateY(2%)}}
+@keyframes dance{0%,100%{transform:translateY(0) rotate(0deg) scale(1,1)}20%{transform:translateY(-9%) rotate(-6deg) scale(.97,1.03)}40%{transform:translateY(0) rotate(0deg) scale(1.04,.96)}60%{transform:translateY(-7%) rotate(6deg) scale(.97,1.03)}80%{transform:translateY(0) rotate(2deg) scale(1.02,.98)}}
+#rotate{display:none;position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#ffd9e8,#ffb9d6);align-items:center;justify-content:center;text-align:center;padding:20px}
+#rotate .rotmsg{font-weight:800;font-size:23px;color:#b0396f;line-height:1.55}
+#rotate .rotmsg small{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.8}
+@media (orientation:landscape) and (max-height:520px){#rotate{display:flex}}
 .bw.jump{animation:jump .75s cubic-bezier(.3,1.5,.5,1)}
 @keyframes jump{0%{transform:scale(1)}20%{transform:scale(1.25,.75)}50%{transform:translateY(-50%) scale(.88,1.15) rotate(-10deg)}80%{transform:scale(1.18,.82)}100%{transform:scale(1)}}
 .tile.wrong::after{content:'';position:absolute;inset:0;border-radius:inherit;background:rgba(255,40,80,.6);animation:fade .65s forwards}
@@ -550,6 +555,7 @@ body.dark .sw{background:#5a4170}
 </style>
 </head>
 <body>
+<div id="rotate"><div class="rotmsg">📱 ↻<br>Tourne ton téléphone<br><small>Kawaidoku se joue à la verticale 💞</small></div></div>
 <div id="bg"></div>
 <div id="tod"></div><div id="wx"></div><div id="vig"></div>
 <canvas id="fx"></canvas>
@@ -693,7 +699,7 @@ const S={sound:LS.get('sound',true),music:LS.get('music',false),auto:LS.get('aut
   name:LS.get('name','')||PROF.name,msg:LS.get('msg',''),pet:LS.get('pet',PROF.def),
   dark:LS.get('dark',false),theme:LS.get('theme','auto'),themeAcc:LS.get('themeAcc',true),
   berries:LS.get('berries',25),owned:LS.get('owned',['bunny','cat','panda','none','pastel']),skin:LS.get('skin','pastel'),
-  eq:LS.get('eq',null)||{head:'none',face:'none',neck:'none'},fx:LS.get('fx','hearts'),weather:LS.get('weather',true),lite:LS.get('lite',false),daynight:LS.get('daynight',true)};
+  eq:LS.get('eq',null)||{head:'none',face:'none',neck:'none'},fx:LS.get('fx','hearts'),weather:LS.get('weather',true),lite:LS.get('lite',false),daynight:LS.get('daynight',true),vibrate:LS.get('vibrate',true)};
 const saveS=()=>{for(const k in S)LS.set(k,S[k])};
 let R=Math.random;
 function seeded(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -1134,7 +1140,7 @@ function pet(type=S.pet,mood='normal',eq=curAccs()){
     ${eyes}${nose}${mouth}${top}${ACC[eq.neck]||''}${ACC[eq.face]||''}${ACC[eq.head]||''}</svg>`;
 }
 const HEART=(fill='#ff4d7d')=>`<svg viewBox="0 0 40 40"><path d="M20 35 C8 26 3 19 3 12.5 C3 7 7.5 3.5 12 3.5 C15.5 3.5 18.5 5.5 20 8.5 C21.5 5.5 24.5 3.5 28 3.5 C32.5 3.5 37 7 37 12.5 C37 19 32 26 20 35Z" fill="${fill}" stroke="#5b3550" stroke-width="2.6" stroke-linejoin="round"/><ellipse cx="11.5" cy="11" rx="4" ry="2.5" fill="#fff" opacity=".6" transform="rotate(-30 11.5 11)"/></svg>`;
-const XSVG=`<svg class="x" viewBox="0 0 10 10"><path d="M2 2L8 8M8 2L2 8" stroke="#5b3550" stroke-width="2.1" stroke-linecap="round" opacity=".5"/></svg>`;
+const XSVG=`<svg class="x" viewBox="0 0 24 24"><g fill="none" stroke-linecap="round"><path d="M7.5 7.5L16.5 16.5M16.5 7.5L7.5 16.5" stroke="#fff" stroke-width="5.6" opacity=".6"/><path d="M7.5 7.5L16.5 16.5M16.5 7.5L7.5 16.5" stroke="#b06a97" stroke-width="3" opacity=".92"/></g><circle cx="12" cy="12" r="1.7" fill="#ffd9ec"/><circle cx="12" cy="12" r=".7" fill="#fff"/></svg>`;
 const STAR=c=>`<svg viewBox="0 0 30 30"><path d="M15 2 L18.5 10.5 L27.5 11.2 L20.6 17 L22.8 26 L15 21.2 L7.2 26 L9.4 17 L2.5 11.2 L11.5 10.5Z" fill="${c}" stroke="#5b3550" stroke-width="2" stroke-linejoin="round"/></svg>`;
 
 /* =========================================================
@@ -1203,7 +1209,7 @@ function startMusic(){if(!AC||musicTimer)return;musicGain.gain.cancelScheduledVa
     nextT+=spb;step++}},100)}
 function restartMusic(){if(musicTimer&&musicTheme!==activeTheme()){clearInterval(musicTimer);musicTimer=null;startMusic()}}
 function stopMusic(){clearInterval(musicTimer);musicTimer=null;if(AC)musicGain.gain.setTargetAtTime(0,AC.currentTime,.25)}
-const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+const buzz=ms=>{try{if(S.vibrate!==false&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
 addEventListener('pointerdown',ensureAudio,{passive:true});
 
 /* =========================================================
@@ -1642,12 +1648,12 @@ function buddyBad(){if(hearts===1)setBuddy('scared','sad','J\'ai peur… 😰');
 /* =========================================================
    Jeu
    ========================================================= */
-let P=null,st,hearts,hist,t0,timer,over=true,hints,combo,lastOk,diffName,mode='free',curL=1,lastTap=null;
+let P=null,st,hearts,hist,t0,timer,over=true,hints,combo,comboReward,lastOk,diffName,mode='free',curL=1,lastTap=null;
 const board=$('board');
 function startGame(n){mode='free';let p=null;if(n>=10){const c=[];for(let i=0;i<4;i++){let q=null;while(!q)q=generate(n);NODES=0;solve(n,q.g,2);c.push([NODES,q])}c.sort((a,b)=>b[0]-a[0]);p=c[0][1]}else while(!p)p=generate(n);P=p;diffName=DIFFS.find(d=>d.n===n).name;$('newLbl').textContent='Nouvelle';showScreen('game');resetGame()}
 function startLevel(L){mode='adv';curL=L;P=genLevel(L);diffName=`Niv. ${L}`;$('newLbl').textContent='Rejouer';showScreen('game');resetGame();
   setTimeout(()=>{const b=$('frame').getBoundingClientRect();floatText(b.left+b.width/2,b.top+b.height/2,`Niveau ${L}`,bandOf(L).c2,38)},300)}
-function resetGame(){const n=P.n;st=Array.from({length:n},()=>Array(n).fill(0));hearts=3;hist=[];over=false;hints=0;combo=0;lastOk=0;lastTap=null;
+function resetGame(){const n=P.n;st=Array.from({length:n},()=>Array(n).fill(0));hearts=3;hist=[];over=false;hints=0;combo=0;comboReward=0;lastOk=0;lastTap=null;
   $('lvl').textContent=diffName;board.classList.remove('dead');$('vig').classList.remove('on');
   buildBoard();renderHearts();render();setBuddy('idle','normal',mpick(['C\'est parti !','On y va ! ✨','Je t\'aide !']));poke();t0=Date.now();clearInterval(timer);timer=setInterval(tick,500);tick()}
 function tick(){if(!over)$('tm').textContent='⏱ '+fmt(Math.floor((Date.now()-t0)/1000))}
@@ -1679,10 +1685,11 @@ function tap(r,c){if(over)return;const now=Date.now(),s=st[r][c];
   snap();if(s===0){st[r][c]=1;sfx.x();buzz(5)}else{st[r][c]=0;sfx.erase()}lastTap={r,c,t:now,prev:s};render()}
 const WORDS=['Mignon !','Trop cute !','Bien joué !','Kawaii !','Parfait !','Wouah !','Génial !','Adorable !','Bravo !','Trop fort !'];
 function placePet(r,c){if(over)return;const[x,y,w]=center(r,c);
-  if(P.sol[r]!==c){hearts--;STATS.errors++;statSave();combo=0;st[r][c]=1;anim(tileEl(r,c),'wrong');anim($('frame'),'shake');sfx.wrong();buzz([60,40,90]);renderHearts(hearts);
+  if(P.sol[r]!==c){hearts--;STATS.errors++;statSave();combo=0;comboReward=0;st[r][c]=1;anim(tileEl(r,c),'wrong');anim($('frame'),'shake');sfx.wrong();buzz([60,40,90]);renderHearts(hearts);
     burst(x,y,{n:10,kinds:['dot'],colors:['#7d4d6e','#b48a9c','#ff4d6d'],speed:4,size:8});floatText(x,y,mpick(['Raté !','Oups !','Non non !','Pas ici !']),'#7d4d6e',22);
     render();if(hearts<=0)lose();else buddyBad();return}
-  snap();st[r][c]=2;STATS.placed++;const now=Date.now();combo=(now-lastOk<7000)?combo+1:1;lastOk=now;
+  snap();st[r][c]=2;STATS.placed++;const now=Date.now();combo=(now-lastOk<7000)?combo+1:1;lastOk=now;if(combo===1)comboReward=0;
+  if(combo>=3)for(const[th,rw]of[[12,10],[9,7],[7,5],[5,3],[3,2]])if(combo>=th&&comboReward<th){comboReward=th;earn(rw);renderBerries(true);floatText(x,y-w*.85,`+${rw} 🍓 combo !`,'#ff9f1c',22);break}
   const placed=st.flat().filter(v=>v===2).length;sfx.land();sfx.pet(placed-1+Math.min(combo-1,3));buzz(22);
   setTimeout(()=>{ring(x,y,w*.7);petBurst(x,y,w);anim($('frame'),'punch')},200);
   floatText(x,y-w*.3,combo>=3?`Combo x${combo} !`:mpick(WORDS),combo>=3?'#b98cff':'#ff5d8f',combo>=3?28:24);beams(r,c);
@@ -1739,7 +1746,7 @@ function win(){
   let dInfo=null;
   if(daily){const dk=dayKey(),last=LS.get('dLast','');if(last!==dk){const sk=last===yesterday()?LS.get('streak',0)+1:1;LS.set('streak',sk);LS.set('dLast',dk);dInfo={first:true,streak:sk}}else dInfo={first:false,streak:LS.get('streak',1)}}
   if(dInfo)LS.set('bestStreak',Math.max(LS.get('bestStreak',0),dInfo.streak));
-  const gain=daily?(dInfo.first?20+5*Math.min(dInfo.streak,6)+hearts*2:0):(adv?4+hearts*2:cls?curTrack.gain+hearts:P.n-1+hearts)+(newWorld?10:0)+(hints===0?2:0);earn(gain);
+  const gain=daily?(dInfo.first?20+5*Math.min(dInfo.streak,6)+hearts*2:0):(adv?4+hearts*2:cls?curTrack.gain+hearts:P.n-1+hearts)+(newWorld?10:0)+(hints===0?2:0)+(hearts===3?5:0);earn(gain);
   const n=P.n;
   for(let r=0;r<n;r++){const bw=tileEl(r,P.sol[r]).querySelector('.bw');
     setTimeout(()=>{if(!bw)return;anim(bw,'jump');const[x,y,w]=center(r,P.sol[r]);burst(x,y,{n:8,kinds:['heart','star'],size:w/5,speed:4});tone(PENTA[r%PENTA.length],{dur:.2,type:'triangle',vol:.1})},r*90)}
@@ -1753,6 +1760,7 @@ function win(){
       <div class="stars">${stars}</div>
       <div class="reward">+<span id="cBerry">0</span> 🍓</div><br>
       ${newWorld?`<div class="badge">🗺️ Nouveau monde : ${bandOf(curL+1).name} !</div>`:rec&&prev?'<div class="badge">🏆 Nouveau record !</div>':''}
+      ${hearts===3&&!daily?'<div class="badge" style="background:linear-gradient(180deg,#bff0c6,#4ad06a);color:#0a5a2a">✨ Sans faute ! +5 🍓</div>':''}
       <div class="mstats"><div>Temps<b id="cTime">0:00</b></div><div>Record<b>${fmt(rec?s:prev)}</b></div><div>Indices<b>${hints}</b></div></div>
       ${(vm=>vm?`<div class="love">💌 ${esc(vm)}</div>`:'')(pickVictory())}
       <div class="mbtns"><button class="soft" id="mMenu">${adv?'Niveaux':'Menu'}</button><button class="candy" id="mNext">${adv||cls?`Niveau ${curL+1} ▶`:daily?(wheelReady()?'Roue 🎡':'Boutique 🛍️'):'Suivante ✨'}</button></div>`,true);
@@ -1792,7 +1800,7 @@ function swRow(key,label,sub){return `<div class="setrow"><div>${label}${sub?`<s
 function showSettings(){
   openModal(`<h2>${letters('Réglages')}</h2>
     ${swRow('sound','🔊 Sons')}${swRow('music','🎵 Musique douce')}${swRow('auto','✨ Croix auto','Après une bonne mascotte')}
-    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
+    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${swRow('vibrate','📳 Vibrations','Quand on pose un ✕ ou un animal (Android — l\'iPhone ne vibre pas en web)')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
     <div style="height:12px"></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mWho">👤 Changer de joueur</button></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mTheme">🎨 Thèmes</button><button class="soft" id="mLove">💌 Prénom & mot</button></div>
