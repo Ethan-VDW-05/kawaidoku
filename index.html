@@ -428,7 +428,7 @@ body.dark .tile{filter:brightness(.9) saturate(.95)}
 .cell.press .tile{transform:scale(.88);filter:brightness(.93)}
 .cell.hold .tile{animation:hold .38s linear forwards}
 @keyframes hold{to{transform:scale(.8);filter:brightness(1.1)}}
-.tile .x{width:45%;height:45%;animation:xin .32s cubic-bezier(.3,1.9,.5,1) backwards;filter:drop-shadow(0 1px 1px rgba(91,53,80,.14))}
+.tile .x{width:52%;height:52%;animation:xin .32s cubic-bezier(.3,1.9,.5,1) backwards;filter:drop-shadow(0 1px 1px rgba(91,53,80,.16))}
 @keyframes xin{from{transform:scale(0) rotate(-120deg);opacity:0}}
 .bw{position:relative;width:88%;height:88%;animation:dance 2.3s ease-in-out infinite;will-change:transform}
 .bw::after{content:'';position:absolute;left:18%;right:18%;bottom:0;height:12%;border-radius:50%;background:rgba(91,53,80,.2);z-index:-1}
@@ -440,6 +440,9 @@ body.dark .tile{filter:brightness(.9) saturate(.95)}
 #rotate .rotmsg{font-weight:800;font-size:23px;color:#b0396f;line-height:1.55}
 #rotate .rotmsg small{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.8}
 @media (orientation:landscape) and (max-height:520px){#rotate{display:flex}}
+#updating{position:fixed;inset:0;z-index:100000;background:linear-gradient(160deg,#ffd9e8,#ffb9d6);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#b0396f;font-weight:800;font-size:19px}
+#updating .spin3{width:46px;height:46px;border:5px solid #ffffff88;border-top-color:#b0396f;border-radius:50%;animation:sp3 .8s linear infinite}
+@keyframes sp3{to{transform:rotate(360deg)}}
 #menuPet{perspective:560px}
 .pet25{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:p25 3.6s ease-in-out infinite;will-change:transform}
 .p25l{position:absolute;inset:0}.p25l .petsvg{width:100%;height:100%}
@@ -678,6 +681,7 @@ body.dark .sw{background:#5a4170}
    Sauvegarde
    ========================================================= */
 const GLS={get(k,d){try{const v=localStorage.getItem('kd-g-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('kd-g-'+k,JSON.stringify(v))}catch(e){}}};
+const BUILD=7;
 const SPECIAL_PROFILES=[{id:'noellya',name:'Noëllya',def:'bunny'},{id:'ethan',name:'Ethan',def:'cat'}];
 // Les profils du couple (et l'admin, les messages, les trolls, la sauvegarde partagée)
 // n'apparaissent qu'une fois le "mode couple" déverrouillé par le code secret.
@@ -1150,7 +1154,7 @@ function pet(type=S.pet,mood='normal',eq=curAccs()){
     ${eyes}${nose}${mouth}${top}${ACC[eq.neck]||''}${ACC[eq.face]||''}${ACC[eq.head]||''}</svg>`;
 }
 const HEART=(fill='#ff4d7d')=>`<svg viewBox="0 0 40 40"><path d="M20 35 C8 26 3 19 3 12.5 C3 7 7.5 3.5 12 3.5 C15.5 3.5 18.5 5.5 20 8.5 C21.5 5.5 24.5 3.5 28 3.5 C32.5 3.5 37 7 37 12.5 C37 19 32 26 20 35Z" fill="${fill}" stroke="#5b3550" stroke-width="2.6" stroke-linejoin="round"/><ellipse cx="11.5" cy="11" rx="4" ry="2.5" fill="#fff" opacity=".6" transform="rotate(-30 11.5 11)"/></svg>`;
-const XSVG=`<svg class="x" viewBox="0 0 24 24"><g fill="none" stroke-linecap="round"><path d="M7 7L17 17M17 7L7 17" stroke="#fff" stroke-width="3.6" opacity=".6"/><path d="M7 7L17 17M17 7L7 17" stroke="#c77fac" stroke-width="2.1"/></g></svg>`;
+const XSVG=`<svg class="x" viewBox="0 0 24 24"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7 Q11.5 11.5 18 17.6" stroke="#fff" stroke-width="4.3" opacity=".6"/><path d="M18 6.5 Q12 12 6 17.9" stroke="#fff" stroke-width="4.3" opacity=".6"/><path d="M6 7 Q11.5 11.5 18 17.6" stroke="#b86aa0" stroke-width="2.5"/><path d="M18 6.5 Q12 12 6 17.9" stroke="#b86aa0" stroke-width="2.5"/></g></svg>`;
 const STAR=c=>`<svg viewBox="0 0 30 30"><path d="M15 2 L18.5 10.5 L27.5 11.2 L20.6 17 L22.8 26 L15 21.2 L7.2 26 L9.4 17 L2.5 11.2 L11.5 10.5Z" fill="${c}" stroke="#5b3550" stroke-width="2" stroke-linejoin="round"/></svg>`;
 
 /* =========================================================
@@ -1881,7 +1885,7 @@ function swRow(key,label,sub){return `<div class="setrow"><div>${label}${sub?`<s
 function showSettings(){
   openModal(`<h2>${letters('Réglages')}</h2>
     ${swRow('sound','🔊 Sons')}${swRow('music','🎵 Musique douce')}${swRow('auto','✨ Croix auto','Après une bonne mascotte')}
-    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${swRow('vibrate','📳 Vibrations','Quand on pose un ✕ ou un animal · Android et iPhone récent (iOS 17.4+, vibration légère)')}${swRow('voice','🔊 Voix','Dit « bravo, super... » quand tu trouves un animal')}${swRow('d3','🧸 Perso en relief','Ton animal avec effet de volume et rotation sur l\'accueil')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}
+    ${swRow('lite','⚡ Mode fluide','Moins de décorations, pour les téléphones qui rament')}${swRow('dark','🌙 Mode nuit')}${swRow('daynight','🌅 Jour / nuit','Le ciel suit l\'heure réelle')}${swRow('weather','🌦️ Météo animée','Pluie, arc-en-ciel, étoiles filantes')}${swRow('vibrate','📳 Vibrations','Quand on pose un ✕ ou un animal · Android et iPhone récent (iOS 17.4+, vibration légère)')}${swRow('voice','🔊 Voix','Dit « bravo, super... » quand tu trouves un animal')}${swRow('d3','🧸 Perso en relief','Ton animal avec effet de volume et rotation sur l\'accueil')}${fam()&&pushOK()&&isApp()?`<div class="setrow"><div>🔔 Rappel du défi du jour<small>Une notification chaque matin</small></div><button class="sw${LS.get('notifOn',false)?' on':''}" id="swNotif"></button></div>`:''}${swRow('themeAcc','🎩 Accessoire de saison','Si aucun accessoire équipé')}<div class="small" style="text-align:center;margin-top:14px;opacity:.55">Kawaidoku · version ${BUILD}</div>
     <div style="height:12px"></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mWho">👤 Changer de joueur</button></div>
     <div class="mbtns" style="margin-bottom:8px"><button class="soft" id="mTheme">🎨 Thèmes</button><button class="soft" id="mLove">💌 Prénom & mot</button></div>
@@ -2655,7 +2659,17 @@ else{let goMenu=false;try{goMenu=!!sessionStorage.getItem('kd-go');sessionStorag
 $('inboxBtn').style.display=fam()?'':'none';
 window.__cloudReady=false;
 if(isLinked())initFamily();else window.__cloudReady=true;
-if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude|anthropic|usercontent/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});
+(function(){const KEY='kd-upd-'+BUILD;
+  if(!/claude|anthropic|usercontent/.test(location.hostname))fetch('version.json?_='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{
+    if(v&&+v.build>BUILD&&!sessionStorage.getItem(KEY)){try{sessionStorage.setItem(KEY,'1')}catch(e){}
+      const o=document.createElement('div');o.id='updating';o.innerHTML='<div class="spin3"></div><div>✨ Mise à jour…</div>';document.body.appendChild(o);
+      (self.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):Promise.resolve()).catch(()=>{}).then(()=>setTimeout(()=>location.reload(),400));}
+  }).catch(()=>{});})();
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude|anthropic|usercontent/.test(location.hostname)){
+  navigator.serviceWorker.register('sw.js').then(reg=>{try{reg.update()}catch(e){}setInterval(()=>{try{reg.update()}catch(e){}},30000)}).catch(()=>{});
+  let _swReloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(_swReloaded)return;_swReloaded=true;setTimeout(()=>location.reload(),200)});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&navigator.serviceWorker.getRegistration)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{})});
+}
 </script>
 </body>
 </html>
