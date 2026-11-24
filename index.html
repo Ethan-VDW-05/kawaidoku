@@ -443,6 +443,8 @@ body.dark .tile{filter:brightness(.9) saturate(.95)}
 #updating{position:fixed;inset:0;z-index:100000;background:linear-gradient(160deg,#ffd9e8,#ffb9d6);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#b0396f;font-weight:800;font-size:19px}
 #updating .spin3{width:46px;height:46px;border:5px solid #ffffff88;border-top-color:#b0396f;border-radius:50%;animation:sp3 .8s linear infinite}
 @keyframes sp3{to{transform:rotate(360deg)}}
+.praise{position:fixed;left:50%;top:22%;transform:translateX(-50%);font-weight:900;font-size:34px;z-index:900;pointer-events:none;white-space:nowrap;letter-spacing:.5px;text-shadow:0 2px 0 #fff,0 3px 10px rgba(0,0,0,.14);animation:praise 1.15s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes praise{0%{opacity:0;transform:translateX(-50%) scale(.4) rotate(-7deg)}22%{opacity:1;transform:translateX(-50%) scale(1.14) rotate(3deg)}50%{transform:translateX(-50%) scale(1) rotate(0)}100%{opacity:0;transform:translateX(-50%) translateY(-30px) scale(1)}}
 #menuPet{perspective:560px}
 .pet25{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:p25 3.6s ease-in-out infinite;will-change:transform}
 .p25l{position:absolute;inset:0}.p25l .petsvg{width:100%;height:100%}
@@ -681,7 +683,7 @@ body.dark .sw{background:#5a4170}
    Sauvegarde
    ========================================================= */
 const GLS={get(k,d){try{const v=localStorage.getItem('kd-g-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('kd-g-'+k,JSON.stringify(v))}catch(e){}}};
-const BUILD=7;
+const BUILD=8;
 const SPECIAL_PROFILES=[{id:'noellya',name:'Noëllya',def:'bunny'},{id:'ethan',name:'Ethan',def:'cat'}];
 // Les profils du couple (et l'admin, les messages, les trolls, la sauvegarde partagée)
 // n'apparaissent qu'une fois le "mode couple" déverrouillé par le code secret.
@@ -1233,12 +1235,15 @@ const VOICE_LINES={good:['Bravo','Super','Excellent','Bien joué','Trop bien','G
 // CUSTOM_VOICE.good=['voix/bravo.mp3','voix/super.mp3']; (ils seront joués à la place de la voix robot)
 const CUSTOM_VOICE={good:[],combo:[],win:[]};
 function pickFrVoice(){if(!('speechSynthesis'in window))return null;const v=speechSynthesis.getVoices()||[];return v.find(x=>/fr/i.test(x.lang)&&/(Amelie|Audrey|Marie|Thomas|Google fran)/i.test(x.name))||v.find(x=>/fr/i.test(x.lang))||null}
-function say(kind){if(S.voice===false)return;try{
+function say(kind,word){if(S.voice===false)return;try{
   const cu=CUSTOM_VOICE[kind];if(cu&&cu.length){const a=new Audio(cu[Math.floor(Math.random()*cu.length)]);a.volume=.9;a.play().catch(()=>{});return}
   if(!('speechSynthesis'in window))return;if(speechSynthesis.speaking&&kind!=='win')return;if(kind==='win')speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(mpick(VOICE_LINES[kind]||VOICE_LINES.good));u.lang='fr-FR';u.rate=1.08;u.pitch=1.4;const fv=pickFrVoice();if(fv)u.voice=fv;speechSynthesis.speak(u);
+  const u=new SpeechSynthesisUtterance(word||mpick(VOICE_LINES[kind]||VOICE_LINES.good));u.lang='fr-FR';u.rate=1.08;u.pitch=1.4;const fv=pickFrVoice();if(fv)u.voice=fv;speechSynthesis.speak(u);
 }catch(e){}}
 try{if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+const PRAISE_COLORS=['#ff5d8f','#ff9f1c','#b98cff','#2fb85e','#4cc9f0','#ff6b6b','#ffca3a'];
+function praiseBanner(word){const el=document.createElement('div');el.className='praise';el.textContent=word+' !';el.style.color=PRAISE_COLORS[Math.floor(Math.random()*PRAISE_COLORS.length)];document.body.appendChild(el);setTimeout(()=>el.remove(),1200)}
+function praise(kind){const word=mpick(VOICE_LINES[kind]||VOICE_LINES.good);praiseBanner(word);say(kind,word)}
 addEventListener('pointerdown',ensureAudio,{passive:true});
 
 /* =========================================================
@@ -1395,10 +1400,12 @@ M3D.setAcc=function(eq){if(!this.grp||!window.THREE)return;const T=THREE;eq=eq||
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)};
 M3D.stop=function(){this.on=false;if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.curPet=null;try{if(this.r){this.r.dispose();this.r.forceContextLoss&&this.r.forceContextLoss();this.r=null}}catch(e){}};
 const use3D=()=>S.d3&&!S.lite&&!!window.THREE;
-function renderPets(){const sp=$('menuPet');
-  if(S.d3&&!S.lite){const art=pet(),N=9;let ly='';for(let i=N-1;i>=0;i--){const z=(i*1.6).toFixed(1),br=(1-i/(N-1)*0.5).toFixed(2);ly+=`<div class="p25l${i===0?' p25front':''}" style="transform:translateZ(-${z}px);filter:brightness(${i===0?1:br})">${art}</div>`}
-    sp.innerHTML=`<div class="pet25">${ly}<div class="pet25sh"></div></div>`}
-  else sp.innerHTML=pet();
+function renderPets(force){const sp=$('menuPet');
+  const key=(S.d3&&!S.lite?'3d':'2d')+'|'+S.pet+'|'+JSON.stringify(curAccs());
+  if(force||sp._petKey!==key){sp._petKey=key;
+    if(S.d3&&!S.lite){const art=pet(),N=9;let ly='';for(let i=N-1;i>=0;i--){const z=(i*1.6).toFixed(1),br=(1-i/(N-1)*0.5).toFixed(2);ly+=`<div class="p25l${i===0?' p25front':''}" style="transform:translateZ(-${z}px);filter:brightness(${i===0?1:br})">${art}</div>`}
+      sp.innerHTML=`<div class="pet25">${ly}<div class="pet25sh"></div></div>`}
+    else sp.innerHTML=pet();}
   $('splashPet').innerHTML=pet();const p=PETS.find(p=>p.id===S.pet);$('petName').innerHTML=`${p.name}<small>${p.desc}</small>`}
 function cyclePet(d){const L=ownedPets(),i=L.findIndex(p=>p.id===S.pet);S.pet=L[(i+d+L.length)%L.length].id;saveS();renderPets();
   sfx.pet(3+d);bumpPet($('menuPet'));const b=$('menuPet').getBoundingClientRect();burst(b.left+b.width/2,b.top+b.height/2,{n:14,kinds:['heart','star'],size:10})}
@@ -1777,7 +1784,7 @@ function placePet(r,c){if(over)return;const[x,y,w]=center(r,c);
   if(combo>=3)for(const[th,rw]of[[12,10],[9,7],[7,5],[5,3],[3,2]])if(combo>=th&&comboReward<th){comboReward=th;earn(rw);renderBerries(true);floatText(x,y-w*.85,`+${rw} 🍓 combo !`,'#ff9f1c',22);break}
   const placed=st.flat().filter(v=>v===2).length;sfx.land();sfx.pet(placed-1+Math.min(combo-1,3));buzz(22);
   setTimeout(()=>{ring(x,y,w*.7);petBurst(x,y,w);anim($('frame'),'punch')},200);
-  floatText(x,y-w*.3,combo>=3?`Combo x${combo} !`:mpick(WORDS),combo>=3?'#b98cff':'#ff5d8f',combo>=3?28:24);beams(r,c);say(combo>=3?'combo':'good');
+  if(combo>=3)floatText(x,y-w*.3,`Combo x${combo} !`,'#b98cff',28);beams(r,c);praise(combo>=3?'combo':'good');
   const n=P.n,id=P.g[r][c];
   for(let a=0;a<n;a++)for(let b=0;b<n;b++)if(P.g[a][b]===id){const t=tileEl(a,b);t.style.animationDelay=(Math.hypot(a-r,b-c)*50)+'ms';anim(t,'glow');setTimeout(()=>{t.classList.remove('glow');t.style.animationDelay=''},900)}
   if(S.auto){const list=[];for(let a=0;a<n;a++)for(let b=0;b<n;b++){if((a===r&&b===c)||st[a][b]!==0)continue;
